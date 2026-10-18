@@ -1,0 +1,43 @@
+demo5_plan_sha256: b36a841d5191a277527b575ddb609cf817b98e4bd19ecfc00e6e0c16a15c418b
+demo5_waypoints:
+- forward: 1.0
+  left: 1.0
+  mode: POINT
+- forward: 3.0
+  left: -1.0
+  mode: EGO
+- forward: 5.0
+  left: 0.0
+  mode: EGO
+origin_world:
+  x: -0.05144107444211841
+  y: 0.003454750229138881
+  z: -0.04507349785417318
+forward_world:
+  x: 0.9999596881677089
+  y: 0.008978977644391423
+left_world:
+  x: -0.008978977644391423
+  y: 0.9999596881677089
+demo_fence:
+  forward_min: -1.0
+  forward_max: 6.0
+  left_min: -2.0
+  left_max: 2.0
+  height_min: -0.25
+  height_max: 1.3
+goal_demo:
+  forward: 5.0
+  left: 0.0
+  height: 0.8
+goal_world:
+  x: 4.948357366396426
+  y: 0.048349638451095994
+  z: 0.7549265021458269
+ego_compatibility_aabb:
+  x_min: -1.11935871789861
+  x_max: 6.016275009852917
+  y_min: -2.0554436037506703
+  y_max: 2.107247992430905
+  z_min: 0.4049265021458268
+  z_max: 1.254926502145827

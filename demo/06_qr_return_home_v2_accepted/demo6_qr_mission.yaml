@@ -1,0 +1,10 @@
+# Demo6 V2: scan AFTER reaching P1, return home after QR has been held for 5s.
+target:
+  forward: 0.5
+  left: -0.5
+  height: 0.8
+qr:
+  stable_required: 3
+  timeout: 30.0
+mission:
+  hold_time: 5.0

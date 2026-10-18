@@ -1,0 +1,32 @@
+# ROS / Catkin generated files
+**/build/
+**/devel/
+**/install/
+**/.catkin_tools/
+
+# ROS recordings and logs
+/data/bags/
+/data/logs/
+*.bag
+*.bag.active
+*.log
+
+# Python caches
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Temporary and backup files
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Local secrets
+.env
+.env.*
+
+# System files
+.DS_Store
+Thumbs.db
