@@ -4,8 +4,8 @@ set -euo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$HOME/contest1_uav"
 source "$ROOT/runtime/env.sh"
-export ROS_MASTER_URI=http://192.168.5.20:11311
-export ROS_IP=192.168.5.12
+export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_IP=192.168.8.101
 export ROS_NAMESPACE=/contest1
 
 if rosnode list 2>/dev/null | grep -Fxq /contest1/demo7_qr_monitor; then
