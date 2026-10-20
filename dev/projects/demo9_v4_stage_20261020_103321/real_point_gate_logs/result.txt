@@ -1,0 +1,5 @@
+[PASS] Real POINT 50Hz publisher produces AIRBORNE_HOLD
+[PASS] Actual stale POINT HOLD refused: continuity veto: position_jump_0.849m
+[PASS] Actual POINT abort -> 3 new stamped HOLD samples -> POINT -> downstream
+[PASS] Actual trajectory interface keeps HOLD after disable
+PASS: actual POINT node + V4 MUX + actual trajectory interface (private ROS; no PX4)

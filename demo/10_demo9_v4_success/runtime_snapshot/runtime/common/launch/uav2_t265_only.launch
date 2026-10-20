@@ -1,0 +1,11 @@
+<launch>
+  <group ns="contest1">
+    <remap from="/tf" to="/contest1/tf"/>
+    <remap from="/tf_static" to="/contest1/tf_static"/>
+    <remap from="/diagnostics" to="/contest1/diagnostics"/>
+    <include file="$(find realsense2_camera)/launch/rs_t265.launch">
+      <arg name="camera" value="t265"/>
+      <arg name="tf_prefix" value="contest1_t265"/>
+    </include>
+  </group>
+</launch>

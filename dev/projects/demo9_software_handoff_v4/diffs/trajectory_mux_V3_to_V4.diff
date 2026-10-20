@@ -1,0 +1,106 @@
+--- /mnt/data/demo9_handoff_contract_v3/candidates/trajectory_mux.py	2026-10-20 01:59:59.107504189 +0000
++++ /mnt/data/demo9_software_handoff_v4/candidates/trajectory_mux.py	2026-10-20 02:22:45.660087889 +0000
+@@ -1,12 +1,12 @@
+ #!/usr/bin/env python3
+-"""Development-only trajectory source switch guard.
++"""V4 development-only trajectory source switch guard.
+ 
+ Never deploy without ROS/PX4-in-loop and no-prop verification.
+ """
+ import copy
+ import threading
+ import rospy
+-from yaw_guard_core import check
++from yaw_guard_core import check, point_hold_feedforward_reason
+ 
+ from mavros_msgs.msg import PositionTarget
+ from std_msgs.msg import String
+@@ -31,6 +31,7 @@
+         self._last_msg = None
+         self._last_time = None
+         self._guard_until = None
++        self._point_last_generation = None
+ 
+         self.pub = rospy.Publisher(
+             '/contest1/ego_uav_interface/trajectory_setpoint',
+@@ -56,6 +57,18 @@
+ 
+     def point_cb(self, msg):
+         with self._lock:
++            # Do not replace a newer POINT sample with a delayed old one.
++            generation = getattr(getattr(msg,'header',None),'stamp',None)
++            if generation is None or generation.to_sec() <= 0.0:
++                rospy.logerr_throttle(1.0,
++                    '[HANDOFF_V4] POINT generation timestamp missing')
++                return
++            if (self._point_last_generation is not None and
++                    generation < self._point_last_generation):
++                rospy.logerr_throttle(1.0,
++                    '[HANDOFF_V4] out-of-order POINT sample rejected')
++                return
++            self._point_last_generation = generation
+             self.point_msg = copy.deepcopy(msg)
+             self.point_time = rospy.Time.now()
+ 
+@@ -86,6 +99,14 @@
+         age = (rospy.Time.now() - stamp).to_sec()
+         return 0.0 <= age < maximum
+ 
++    @staticmethod
++    def point_generated_fresh(msg, max_age=0.15):
++        stamp = getattr(getattr(msg,'header',None),'stamp',None)
++        if stamp is None or stamp.to_sec() <= 0.0:
++            return False
++        age = (rospy.Time.now() - stamp).to_sec()
++        return 0.0 <= age < max_age
++
+     def _switch_anchor(self):
+         # The downstream interface can independently output HOLD even while
+         # MUX still selects EGO. Compare to *what PX4 is actually receiving*.
+@@ -116,12 +137,24 @@
+             reason = check(None, cmd)
+             if reason:
+                 return TriggerResponse(False, desired + ' invalid: ' + reason)
++            if desired == 'POINT' and desired != self.source:
++                # Only a fresh, genuinely generated post-abort airborne
++                # HOLD may be selected. The mission additionally verifies
++                # generation time > abort request time.
++                if (self.point_status != 'AIRBORNE_HOLD' or
++                        not self.fresh(self.point_status_time, 0.30)):
++                    return TriggerResponse(False, 'POINT not in fresh AIRBORNE_HOLD')
++                if not self.point_generated_fresh(cmd):
++                    return TriggerResponse(False, 'POINT generated sample missing/stale')
++                reason = point_hold_feedforward_reason(cmd)
++                if reason:
++                    return TriggerResponse(False, 'POINT hold veto: ' + reason)
+             if desired != self.source:
+                 anchor, reason = self._switch_anchor()
+                 if not reason:
+                     reason = check(anchor, cmd)
+                 if reason:
+-                    rospy.logerr('[HANDOFF_V3] %s refused: %s', desired, reason)
++                    rospy.logerr('[HANDOFF_V4] %s refused: %s', desired, reason)
+                     return TriggerResponse(False, 'continuity veto: ' + reason)
+                 # Seed the exact downstream reference before accepting the
+                 # first command. Do not reuse a stale EGO MUX output.
+@@ -152,6 +185,11 @@
+                 self.point_status == 'AIRBORNE_HOLD' and
+                 self.fresh(self.point_status_time, 0.30) and
+                 self.fresh(self._last_time, 0.30))
++            if not reason and self.source == 'POINT' and (guard_active or steady_hold):
++                if not self.point_generated_fresh(cmd):
++                    reason = 'POINT generated sample missing/stale'
++                elif steady_hold:
++                    reason = point_hold_feedforward_reason(cmd)
+             if not reason and (guard_active or steady_hold):
+                 reason = check(self._last_msg, cmd)
+             if reason:
+@@ -161,7 +199,7 @@
+                 if guard_active or steady_hold:
+                     self._guard_until = rospy.Time.now() + rospy.Duration(0.25)
+                 rospy.logerr_throttle(1.0,
+-                    '[HANDOFF_V3] %s command veto: %s' % (self.source, reason))
++                    '[HANDOFF_V4] %s command veto: %s' % (self.source, reason))
+                 self.status_pub.publish(String(data=self.source + '_GUARD_REJECTED'))
+                 return
+             self.pub.publish(cmd)

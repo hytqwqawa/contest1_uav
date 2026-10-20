@@ -1,0 +1,234 @@
+--- trajectory_mux.py.original
++++ trajectory_mux.py.dev
+@@ -1,5 +1,8 @@
+ #!/usr/bin/env python3
+ import rospy
++import threading
++import copy
++from yaw_guard_core import check
+ 
+ from mavros_msgs.msg import PositionTarget
+ from std_msgs.msg import String
+@@ -13,6 +16,10 @@
+         self.timeout = 0.25
+ 
+         self.source = "POINT"
++        self._guard_lock = threading.RLock()
++        self._guard_last_msg = None
++        self._guard_last_time = None
++        self._guard_window_until = None
+ 
+         self.point_msg = None
+         self.point_time = None
+@@ -65,12 +72,14 @@
+         )
+ 
+     def point_cb(self, msg):
+-        self.point_msg = msg
+-        self.point_time = rospy.Time.now()
++        with self._guard_lock:
++            self.point_msg = msg
++            self.point_time = rospy.Time.now()
+ 
+     def ego_cb(self, msg):
+-        self.ego_msg = msg
+-        self.ego_time = rospy.Time.now()
++        with self._guard_lock:
++            self.ego_msg = msg
++            self.ego_time = rospy.Time.now()
+ 
+     def fresh(self, t):
+         return (
+@@ -78,57 +87,56 @@
+             (rospy.Time.now() - t).to_sec() < self.timeout
+         )
+ 
++    def _guard_check(self, cmd):
++        if self._guard_last_msg is None or self._guard_last_time is None:
++            return 'no_published_reference'
++        age = (rospy.Time.now()-self._guard_last_time).to_sec()
++        if not 0.0 <= age <= 0.30:
++            return 'reference_stale'
++        return check(self._guard_last_msg, cmd)
++
++    def _guard_select(self, desired, cmd, timestamp):
++        with self._guard_lock:
++            if not self.fresh(timestamp):
++                return TriggerResponse(False, desired+' source missing/stale')
++            if desired != self.source:
++                reason = self._guard_check(cmd)
++                if reason:
++                    rospy.logerr('[HANDOFF_GUARD] %s refused: %s',desired,reason)
++                    return TriggerResponse(False, 'continuity veto: '+reason)
++            if desired != self.source:
++                self._guard_window_until = rospy.Time.now() + rospy.Duration(0.25)
++            self.source = desired
++            return TriggerResponse(True, 'Trajectory source -> '+desired)
++
+     def use_point(self, req):
+-
+-        if not self.fresh(self.point_time):
+-            return TriggerResponse(
+-                False,
+-                "POINT source unavailable/stale"
+-            )
+-
+-        self.source = "POINT"
+-
+-        return TriggerResponse(
+-            True,
+-            "Trajectory source -> POINT"
+-        )
++        return self._guard_select('POINT', self.point_msg, self.point_time)
+ 
+     def use_ego(self, req):
+-
+-        if not self.fresh(self.ego_time):
+-            return TriggerResponse(
+-                False,
+-                "EGO source unavailable/stale"
+-            )
+-
+-        self.source = "EGO"
+-
+-        return TriggerResponse(
+-            True,
+-            "Trajectory source -> EGO"
+-        )
++        return self._guard_select('EGO', self.ego_msg, self.ego_time)
+ 
+     def timer_cb(self, event):
+-
+-        if self.source == "POINT":
+-
+-            if self.fresh(self.point_time):
+-                self.pub.publish(self.point_msg)
+-                status = "POINT_ACTIVE"
+-            else:
+-                status = "POINT_STALE"
+-
+-        else:
+-
+-            if self.fresh(self.ego_time):
+-                self.pub.publish(self.ego_msg)
+-                status = "EGO_ACTIVE"
+-            else:
+-                status = "EGO_STALE"
+-
+-        self.status_pub.publish(
+-            String(data=status)
+-        )
++        with self._guard_lock:
++            cmd, timestamp = ((self.point_msg,self.point_time) if self.source=='POINT'
++                             else (self.ego_msg,self.ego_time))
++            if not self.fresh(timestamp):
++                self.status_pub.publish(String(data=self.source+'_STALE'))
++                return
++            # Ordinary in-source trajectory updates (including TAKEOFF init)
++            # are *not* clamped. The guard applies at source handoff only.
++            reason = check(None, cmd)
++            if (not reason and self._guard_window_until is not None and
++                    rospy.Time.now() <= self._guard_window_until):
++                reason = self._guard_check(cmd)
++            if reason:
++                rospy.logerr_throttle(1.0,'[HANDOFF_GUARD] %s command veto: %s' % (
++                    self.source,reason))
++                self.status_pub.publish(String(data=self.source+'_GUARD_REJECTED'))
++                return
++            self.pub.publish(cmd)
++            self._guard_last_msg=copy.deepcopy(cmd)
++            self._guard_last_time=rospy.Time.now()
++            self.status_pub.publish(String(data=self.source+'_ACTIVE'))
+ 
+ 
+ if __name__ == "__main__":
+--- uav2_demo5_waypoints.py.original
++++ uav2_demo5_waypoints.py.dev
+@@ -1628,37 +1628,56 @@
+ 
+ 
+     def restore_point_hold(self):
+-
+-        rospy.logwarn(
+-            "[DIRECT] Restoring POINT HOLD..."
+-        )
+-
+-        for name in [
+-            "/contest1/ego_uav_interface/disable_trajectory",
+-            "/contest1/ego_uav_interface/abort_trajectory",
+-            "/contest1/ego_uav_interface/use_point",
+-        ]:
+-
+-            try:
+-                self.call_service(name)
+-
+-            except Exception as e:
+-                rospy.logerr(
+-                    "%s restore failed: %s",
+-                    name,
+-                    str(e)
+-                )
+-
+-        try:
+-            self.call_service(
+-                "/contest1/ego_uav_interface/enable_trajectory"
+-            )
+-
+-        except Exception as e:
+-            rospy.logerr(
+-                "enable POINT output failed: %s",
+-                str(e)
+-            )
++        # Must disable EGO output before updating POINT. If any step fails,
++        # leave trajectory_interface in physical-position HOLD, not stale EGO.
++        rospy.logwarn('[HANDOFF_GUARD] Begin EGO -> POINT HOLD rejoin')
++        self.call_service('/contest1/ego_uav_interface/disable_trajectory')
++        reset_started = rospy.Time.now()
++        self.call_service('/contest1/ego_uav_interface/abort_trajectory')
++        deadline=time.time()+2.0
++        last_good_stamp=None
++        good=0
++        while not rospy.is_shutdown() and time.time()<deadline:
++            if (self.state is None or not self.state.connected or not self.state.armed
++                    or self.state.mode!='OFFBOARD'):
++                raise RuntimeError('POINT rejoin aborted: not ARMED OFFBOARD')
++            cmd=self.point_cmd
++            stamp=self.point_cmd_time
++            if (cmd is not None and stamp is not None and self.odom is not None
++                and stamp>reset_started
++                and (rospy.Time.now()-stamp).to_sec()<0.15
++                and (cmd.type_mask & (PositionTarget.IGNORE_PX |
++                      PositionTarget.IGNORE_PY | PositionTarget.IGNORE_PZ |
++                      PositionTarget.IGNORE_YAW))==0):
++                p=self.odom.pose.pose.position
++                dist=math.sqrt((cmd.position.x-p.x)**2 +
++                               (cmd.position.y-p.y)**2 +
++                               (cmd.position.z-p.z)**2)
++                dyaw=abs(wrap(cmd.yaw-self.current_yaw()))
++                if (math.isfinite(dist) and math.isfinite(dyaw) and
++                    dist<=0.12 and dyaw<=math.radians(12.0)):
++                    if stamp!=last_good_stamp:
++                        good+=1
++                        last_good_stamp=stamp
++                else:
++                    good=0
++                    last_good_stamp=None
++            else:
++                good=0
++                last_good_stamp=None
++            if good>=3: break
++            rospy.sleep(0.02)
++        if good<3:
++            raise RuntimeError('POINT rejoin veto: fresh current HOLD was not verified')
++        self.call_service('/contest1/ego_uav_interface/use_point')
++        deadline=time.time()+0.6
++        while not rospy.is_shutdown() and time.time()<deadline:
++            if self.mux_status=='POINT_ACTIVE': break
++            rospy.sleep(0.02)
++        if self.mux_status!='POINT_ACTIVE':
++            raise RuntimeError('POINT rejoin veto: MUX POINT_ACTIVE not confirmed')
++        self.call_service('/contest1/ego_uav_interface/enable_trajectory')
++        rospy.logwarn('[HANDOFF_GUARD] POINT current HOLD confirmed')
+ 
+ 
+     def wait_matching_cmd(

@@ -1,0 +1,35 @@
+--- /mnt/data/demo9_handoff_contract_v3/candidates/yaw_guard_core.py	2026-10-20 01:56:42.264381485 +0000
++++ /mnt/data/demo9_software_handoff_v4/candidates/yaw_guard_core.py	2026-10-20 02:22:45.657509623 +0000
+@@ -27,3 +27,32 @@
+     a = abs(angle_delta(candidate.yaw, previous.yaw))
+     if a > MAX_YAW_RAD: return 'yaw_jump_%.1fdeg' % math.degrees(a)
+     return None
++
++# POINT publishes exactly zero velocity, acceleration and yaw_rate while
++# AIRBORNE_HOLD. A stale trajectory sample must not be accepted as a HOLD
++# even if its XYZ and yaw happen to match the latest measured position.
++def point_hold_feedforward_reason(candidate):
++    if candidate is None:
++        return 'point_hold_missing'
++    mask = int(candidate.type_mask)
++    for group, fields, flags, limit in (
++        ('velocity', ('x','y','z'), (8,16,32), 0.05),
++        ('acceleration', ('x','y','z'), (64,128,256), 0.15),
++    ):
++        vector = (candidate.velocity if group == 'velocity'
++                  else candidate.acceleration_or_force)
++        for name, ignore_bit in zip(fields, flags):
++            if mask & ignore_bit:
++                continue
++            value = float(getattr(vector,name))
++            if not math.isfinite(value):
++                return 'point_hold_nonfinite_' + group
++            if abs(value) > limit:
++                return 'point_hold_nonzero_' + group
++    if not mask & 2048:
++        rate = float(candidate.yaw_rate)
++        if not math.isfinite(rate):
++            return 'point_hold_nonfinite_yaw_rate'
++        if abs(rate) > 0.05:
++            return 'point_hold_nonzero_yaw_rate'
++    return None

@@ -1,0 +1,1 @@
+/home/yundrone/contest1_uav/demo/09_demo8_posctl_integrated_v1/run_mission.sh

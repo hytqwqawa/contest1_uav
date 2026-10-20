@@ -1,0 +1,5 @@
+DEV SOURCE ONLY. DO NOT launch on actual aircraft.
+This is a separate ROS package snapshot and mission script.
+It is not installed in the active ROS_PACKAGE_PATH.
+The official Demo9 and runtime were not changed.
+No power-on, propeller, OFFBOARD, ARM, or flight tests were run.

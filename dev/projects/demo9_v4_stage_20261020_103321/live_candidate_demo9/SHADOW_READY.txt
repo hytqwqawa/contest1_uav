@@ -1,0 +1,5 @@
+V4 DEV shadow launchers. No original runtime or Demo9 source was changed.
+Core: original Demo9/start_core.sh.
+Backend: this directory/start_backend.sh (V4 package).
+Mission: this directory/run_demo9.sh (V4 mission).
+NOT an airworthiness approval. Ground tests and independent flight safety review required.

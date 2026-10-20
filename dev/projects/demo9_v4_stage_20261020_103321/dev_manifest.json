@@ -1,0 +1,17 @@
+{
+  "status": "DEV_SOURCE_ONLY_NOT_DEPLOYED",
+  "runtime_source": "/home/yundrone/contest1_uav/runtime/ego_uav_ws/src/ego_uav_interface",
+  "mission_source": "/home/yundrone/contest1_uav/demo/09_demo8_posctl_integrated_v1",
+  "sha_before": {
+    "/home/yundrone/contest1_uav/runtime/ego_uav_ws/src/ego_uav_interface/scripts/trajectory_mux.py": "9f470c0268b542b30813351c841467a9b3acb11d71fa98cea6fc12e35bf9c17a",
+    "/home/yundrone/contest1_uav/runtime/ego_uav_ws/src/ego_uav_interface/scripts/point_traj_node.py": "a7432b439064429cc6c46eb393eaea224bdc60d0bd622b30b7369f1a7cb1b72f",
+    "/home/yundrone/contest1_uav/runtime/ego_uav_ws/src/ego_uav_interface/scripts/trajectory_interface.py": "1bf2063afb421a68a285d157bcec8488dfa07f962b62fad6d6dbabe5a9bd2376",
+    "/home/yundrone/contest1_uav/demo/09_demo8_posctl_integrated_v1/uav2_demo5_waypoints.py": "5909777db45dccbfec13086e5e23f4220e5d2cb068be21d8371ccb5858f0e0d4",
+    "/home/yundrone/contest1_uav/demo/09_demo8_posctl_integrated_v1/uav2_demo5_multi_waypoint_interface.launch": "a17f6483d76e58cc71fba2de659b8dd52039c46980c5c98eebb699bd67cdab4f"
+  },
+  "dev_outputs": {
+    "mux": "/home/yundrone/contest1_uav/dev/projects/demo9_v4_stage_20261020_103321/ros_src/ego_uav_interface/scripts/trajectory_mux.py",
+    "guard": "/home/yundrone/contest1_uav/dev/projects/demo9_v4_stage_20261020_103321/ros_src/ego_uav_interface/scripts/yaw_guard_core.py",
+    "mission": "/home/yundrone/contest1_uav/dev/projects/demo9_v4_stage_20261020_103321/demo9_app/uav2_demo5_waypoints.py"
+  }
+}

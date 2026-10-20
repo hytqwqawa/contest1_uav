@@ -1,0 +1,424 @@
+--- /mnt/data/demo9_handoff_review_v2/candidates/trajectory_mux.py
++++ DEV_V3/trajectory_mux.py
+@@ -1,7 +1,11 @@
+ #!/usr/bin/env python3
++"""Development-only trajectory source switch guard.
++
++Never deploy without ROS/PX4-in-loop and no-prop verification.
++"""
++import copy
++import threading
+ import rospy
+-import threading
+-import copy
+ from yaw_guard_core import check
+ 
+ from mavros_msgs.msg import PositionTarget
+@@ -10,144 +14,165 @@
+ 
+ 
+ class TrajectoryMux:
+-
+     def __init__(self):
+-
+         self.timeout = 0.25
+-
+-        self.source = "POINT"
+-        self._guard_lock = threading.RLock()
+-        self._guard_last_msg = None
+-        self._guard_last_time = None
+-        self._guard_window_until = None
+-
++        self.source = 'POINT'
++        self._lock = threading.RLock()
+         self.point_msg = None
+         self.point_time = None
+-
+         self.ego_msg = None
+         self.ego_time = None
++        self.point_status = None
++        self.point_status_time = None
++        self.interface_status = None
++        self.interface_time = None
++        self.downstream_msg = None
++        self.downstream_time = None
++        self._last_msg = None
++        self._last_time = None
++        self._guard_until = None
+ 
+         self.pub = rospy.Publisher(
+-            "/contest1/ego_uav_interface/trajectory_setpoint",
+-            PositionTarget,
+-            queue_size=10
+-        )
+-
++            '/contest1/ego_uav_interface/trajectory_setpoint',
++            PositionTarget, queue_size=10)
+         self.status_pub = rospy.Publisher(
+-            "/contest1/ego_uav_interface/trajectory_mux_status",
+-            String,
+-            queue_size=1,
+-            latch=True
+-        )
+-
+-        rospy.Subscriber(
+-            "/contest1/ego_uav_interface/point_setpoint",
+-            PositionTarget,
+-            self.point_cb,
+-            queue_size=20
+-        )
+-
+-        rospy.Subscriber(
+-            "/contest1/ego_uav_interface/ego_setpoint",
+-            PositionTarget,
+-            self.ego_cb,
+-            queue_size=20
+-        )
+-
+-        rospy.Service(
+-            "/contest1/ego_uav_interface/use_point",
+-            Trigger,
+-            self.use_point
+-        )
+-
+-        rospy.Service(
+-            "/contest1/ego_uav_interface/use_ego",
+-            Trigger,
+-            self.use_ego
+-        )
+-
+-        rospy.Timer(
+-            rospy.Duration(0.02),
+-            self.timer_cb
+-        )
++            '/contest1/ego_uav_interface/trajectory_mux_status',
++            String, queue_size=1, latch=True)
++        rospy.Subscriber('/contest1/ego_uav_interface/point_setpoint',
++                         PositionTarget, self.point_cb, queue_size=20)
++        rospy.Subscriber('/contest1/ego_uav_interface/ego_setpoint',
++                         PositionTarget, self.ego_cb, queue_size=20)
++        rospy.Subscriber('/contest1/ego_uav_interface/point_traj_status',
++                         String, self.point_status_cb, queue_size=20)
++        rospy.Subscriber('/contest1/ego_uav_interface/trajectory_interface_status',
++                         String, self.interface_cb, queue_size=20)
++        rospy.Subscriber('/contest1/mavros/setpoint_raw/local',
++                         PositionTarget, self.downstream_cb, queue_size=20)
++        rospy.Service('/contest1/ego_uav_interface/use_point',
++                      Trigger, self.use_point)
++        rospy.Service('/contest1/ego_uav_interface/use_ego',
++                      Trigger, self.use_ego)
++        rospy.Timer(rospy.Duration(0.02), self.timer_cb)
+ 
+     def point_cb(self, msg):
+-        with self._guard_lock:
+-            self.point_msg = msg
++        with self._lock:
++            self.point_msg = copy.deepcopy(msg)
+             self.point_time = rospy.Time.now()
+ 
+     def ego_cb(self, msg):
+-        with self._guard_lock:
+-            self.ego_msg = msg
++        with self._lock:
++            self.ego_msg = copy.deepcopy(msg)
+             self.ego_time = rospy.Time.now()
+ 
+-    def fresh(self, t):
+-        if t is None:
++    def point_status_cb(self, msg):
++        with self._lock:
++            self.point_status = msg.data
++            self.point_status_time = rospy.Time.now()
++
++    def interface_cb(self, msg):
++        with self._lock:
++            self.interface_status = msg.data
++            self.interface_time = rospy.Time.now()
++
++    def downstream_cb(self, msg):
++        with self._lock:
++            self.downstream_msg = copy.deepcopy(msg)
++            self.downstream_time = rospy.Time.now()
++
++    @staticmethod
++    def fresh(stamp, maximum=0.25):
++        if stamp is None:
+             return False
+-        age = (rospy.Time.now() - t).to_sec()
+-        return 0.0 <= age < self.timeout
++        age = (rospy.Time.now() - stamp).to_sec()
++        return 0.0 <= age < maximum
+ 
+-    def _guard_check(self, cmd):
+-        if self._guard_last_msg is None or self._guard_last_time is None:
+-            return 'no_published_reference'
+-        age = (rospy.Time.now()-self._guard_last_time).to_sec()
+-        if not 0.0 <= age <= 0.30:
+-            return 'reference_stale'
+-        return check(self._guard_last_msg, cmd)
++    def _switch_anchor(self):
++        # The downstream interface can independently output HOLD even while
++        # MUX still selects EGO. Compare to *what PX4 is actually receiving*.
++        if not self.fresh(self.interface_time, 0.30):
++            return None, 'interface_status_stale'
++        if self.interface_status == 'HOLD_ACTIVE':
++            if not self.fresh(self.downstream_time, 0.15):
++                return None, 'downstream_hold_stale'
++            reason = check(None, self.downstream_msg)
++            if reason:
++                return None, 'downstream_hold_invalid:' + reason
++            return self.downstream_msg, None
++        if self.interface_status == 'TRAJECTORY_ACTIVE':
++            if not self.fresh(self._last_time, 0.30):
++                return None, 'selected_source_reference_stale'
++            reason = check(None, self._last_msg)
++            if reason:
++                return None, 'selected_source_reference_invalid:' + reason
++            return self._last_msg, None
++        return None, 'interface_not_eligible:' + str(self.interface_status)
+ 
+-    def _guard_select(self, desired):
+-        # Read the message and its receipt timestamp UNDER the same lock.
+-        # A callback may update them concurrently with the service call.
+-        with self._guard_lock:
+-            if desired == 'POINT':
+-                cmd, timestamp = self.point_msg, self.point_time
+-            else:
+-                cmd, timestamp = self.ego_msg, self.ego_time
+-            if not self.fresh(timestamp):
++    def _select(self, desired):
++        with self._lock:
++            cmd, stamp = ((self.point_msg, self.point_time)
++                          if desired == 'POINT' else (self.ego_msg, self.ego_time))
++            if not self.fresh(stamp, self.timeout):
+                 return TriggerResponse(False, desired + ' source missing/stale')
+             reason = check(None, cmd)
+             if reason:
+                 return TriggerResponse(False, desired + ' invalid: ' + reason)
+             if desired != self.source:
+-                reason = self._guard_check(cmd)
++                anchor, reason = self._switch_anchor()
++                if not reason:
++                    reason = check(anchor, cmd)
+                 if reason:
+-                    rospy.logerr('[HANDOFF_GUARD] %s refused: %s', desired, reason)
++                    rospy.logerr('[HANDOFF_V3] %s refused: %s', desired, reason)
+                     return TriggerResponse(False, 'continuity veto: ' + reason)
+-                self._guard_window_until = rospy.Time.now() + rospy.Duration(0.25)
++                # Seed the exact downstream reference before accepting the
++                # first command. Do not reuse a stale EGO MUX output.
++                self._last_msg = copy.deepcopy(anchor)
++                self._last_time = rospy.Time.now()
++                self._guard_until = rospy.Time.now() + rospy.Duration(0.25)
+             self.source = desired
+             return TriggerResponse(True, 'Trajectory source -> ' + desired)
+ 
+     def use_point(self, req):
+-        return self._guard_select('POINT')
++        return self._select('POINT')
+ 
+     def use_ego(self, req):
+-        return self._guard_select('EGO')
++        return self._select('EGO')
+ 
+     def timer_cb(self, event):
+-        with self._guard_lock:
+-            cmd, timestamp = ((self.point_msg,self.point_time) if self.source=='POINT'
+-                             else (self.ego_msg,self.ego_time))
+-            if not self.fresh(timestamp):
+-                self.status_pub.publish(String(data=self.source+'_STALE'))
++        with self._lock:
++            cmd, stamp = ((self.point_msg, self.point_time)
++                          if self.source == 'POINT' else (self.ego_msg, self.ego_time))
++            if not self.fresh(stamp, self.timeout):
++                self.status_pub.publish(String(data=self.source + '_STALE'))
+                 return
+-            # Ordinary in-source trajectory updates (including TAKEOFF init)
+-            # are *not* clamped. The guard applies at source handoff only.
+             reason = check(None, cmd)
+-            if (not reason and self._guard_window_until is not None and
+-                    rospy.Time.now() <= self._guard_window_until):
+-                reason = self._guard_check(cmd)
++            guard_active = self._guard_until is not None
++            # POINT AIRBORNE_HOLD should never jump by a metre or ~90 degrees
++            # within one update, including long AFTER the handoff window.
++            steady_hold = (self.source == 'POINT' and
++                self.point_status == 'AIRBORNE_HOLD' and
++                self.fresh(self.point_status_time, 0.30) and
++                self.fresh(self._last_time, 0.30))
++            if not reason and (guard_active or steady_hold):
++                reason = check(self._last_msg, cmd)
+             if reason:
+-                rospy.logerr_throttle(1.0,'[HANDOFF_GUARD] %s command veto: %s' % (
+-                    self.source,reason))
+-                self.status_pub.publish(String(data=self.source+'_GUARD_REJECTED'))
++                # A rejected command must NEVER be released just because the
++                # initial 250-ms handoff window elapsed. Extend the window
++                # until fresh, continuous commands have resumed.
++                if guard_active or steady_hold:
++                    self._guard_until = rospy.Time.now() + rospy.Duration(0.25)
++                rospy.logerr_throttle(1.0,
++                    '[HANDOFF_V3] %s command veto: %s' % (self.source, reason))
++                self.status_pub.publish(String(data=self.source + '_GUARD_REJECTED'))
+                 return
+             self.pub.publish(cmd)
+-            self._guard_last_msg=copy.deepcopy(cmd)
+-            self._guard_last_time=rospy.Time.now()
+-            self.status_pub.publish(String(data=self.source+'_ACTIVE'))
++            self._last_msg = copy.deepcopy(cmd)
++            self._last_time = rospy.Time.now()
++            if self._guard_until is not None and rospy.Time.now() >= self._guard_until:
++                self._guard_until = None
++            self.status_pub.publish(String(data=self.source + '_ACTIVE'))
+ 
+ 
+-if __name__ == "__main__":
+-    rospy.init_node("trajectory_mux")
++if __name__ == '__main__':
++    rospy.init_node('trajectory_mux')
+     TrajectoryMux()
+     rospy.spin()
+--- /mnt/data/demo9_handoff_review_v2/candidates/uav2_demo5_waypoints.py
++++ DEV_V3/uav2_demo5_waypoints.py
+@@ -54,6 +54,10 @@
+         # DIRECT_TANGENT_EXEC_V1
+         self.flight_healthy = False
+         self.mission_allowed = False
++        # Arrival times for the recovery-only live safety gate.
++        self.state_rx_time = None
++        self.health_rx_time = None
++        self.permission_rx_time = None
+ 
+         self.cmd = None
+         self.cmd_time = None
+@@ -279,6 +283,7 @@
+ 
+     def state_cb(self, msg):
+         self.state = msg
++        self.state_rx_time = rospy.Time.now()
+ 
+ 
+     def point_cb(self, msg):
+@@ -300,10 +305,12 @@
+     # DIRECT_TANGENT_EXEC_V1
+     def health_cb(self, msg):
+         self.flight_healthy = msg.data
++        self.health_rx_time = rospy.Time.now()
+ 
+ 
+     def mission_cb(self, msg):
+         self.mission_allowed = msg.data
++        self.permission_rx_time = rospy.Time.now()
+ 
+ 
+ 
+@@ -1630,17 +1637,19 @@
+ 
+ 
+     def restore_point_hold(self):
+-        # DEMO9_HANDOFF_REVIEW_V2 - guarded, bounded EGO -> POINT rejoin.
++        # DEMO9_HANDOFF_REVIEW_V3 - guarded, bounded EGO -> POINT rejoin.
+         # Never re-enable the trajectory interface on an unverified state.
+         # This is a DEV candidate, not approved for powered flight.
+-        rospy.logwarn('[HANDOFF_V2] Begin EGO -> POINT HOLD rejoin')
++        rospy.logwarn('[HANDOFF_V3] Begin EGO -> POINT HOLD rejoin')
+         disable = '/contest1/ego_uav_interface/disable_trajectory'
+         abort = '/contest1/ego_uav_interface/abort_trajectory'
+         use_point = '/contest1/ego_uav_interface/use_point'
+         enable = '/contest1/ego_uav_interface/enable_trajectory'
+ 
+-        # First ensure the downstream interface is in HOLD. It continues
+-        # publishing its independent 50 Hz HOLD only while odom/health work.
++        # Disable upstream trajectory and wait for a *fresh actual output*
++        # from the downstream 50 Hz HOLD. MUX will use the SAME output as
++        # its switch continuity anchor.
++        disable_at = rospy.Time.now()
+         self.call_service(disable)
+ 
+         def safety_check():
+@@ -1655,6 +1664,12 @@
+             if not self.demo_safe:
+                 raise RuntimeError('POINT rejoin: Demo-frame safety lost')
+             now = rospy.Time.now()
++            for name, stamp, timeout in (
++                    ('PX4 state', self.state_rx_time, 2.50),
++                    ('flight health', self.health_rx_time, 0.30),
++                    ('RC permission', self.permission_rx_time, 1.50)):
++                if stamp is None or not 0.0 <= (now - stamp).to_sec() < timeout:
++                    raise RuntimeError('POINT rejoin: %s unavailable/stale' % name)
+             if self.odom is None or self.odom_time is None:
+                 raise RuntimeError('POINT rejoin: no odometry')
+             age = (now - self.odom_time).to_sec()
+@@ -1672,7 +1687,17 @@
+             if (cmd is None or stamp is None or not stamp > reset_started or
+                     not 0.0 <= (rospy.Time.now() - stamp).to_sec() < 0.15 or
+                     self.point_status != 'AIRBORNE_HOLD' or
+-                    'HOLD' not in self.if_status):
++                    self.if_status != 'HOLD_ACTIVE'):
++                return False, None
++            downstream, downstream_time = self.mavros_sp, self.mavros_sp_time
++            if (downstream is None or downstream_time is None or
++                    not downstream_time > disable_at or
++                    not 0.0 <= (rospy.Time.now() - downstream_time).to_sec() < 0.15 or
++                    downstream.coordinate_frame != PositionTarget.FRAME_LOCAL_NED):
++                return False, None
++            active_mask = (PositionTarget.IGNORE_PX | PositionTarget.IGNORE_PY |
++                           PositionTarget.IGNORE_PZ | PositionTarget.IGNORE_YAW)
++            if downstream.type_mask & active_mask:
+                 return False, None
+             if cmd.coordinate_frame != PositionTarget.FRAME_LOCAL_NED:
+                 return False, None
+@@ -1683,7 +1708,9 @@
+             p = self.odom.pose.pose.position
+             v = self.odom.twist.twist.linear
+             values = (p.x, p.y, p.z, cmd.position.x, cmd.position.y,
+-                      cmd.position.z, cmd.yaw, v.x, v.y, v.z)
++                      cmd.position.z, cmd.yaw, v.x, v.y, v.z,
++                      downstream.position.x, downstream.position.y,
++                      downstream.position.z, downstream.yaw)
+             if not all(math.isfinite(float(x)) for x in values):
+                 return False, None
+             dist = math.sqrt((cmd.position.x - p.x)**2 +
+@@ -1691,8 +1718,14 @@
+                              (cmd.position.z - p.z)**2)
+             yaw_error = abs(wrap(cmd.yaw - self.current_yaw()))
+             speed = math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z)
++            hold_dist = math.sqrt(
++                (cmd.position.x-downstream.position.x)**2 +
++                (cmd.position.y-downstream.position.y)**2 +
++                (cmd.position.z-downstream.position.z)**2)
++            hold_yaw = abs(wrap(cmd.yaw-downstream.yaw))
+             return (dist <= 0.12 and yaw_error <= math.radians(12.0)
+-                    and speed <= 0.20), stamp
++                    and speed <= 0.20 and hold_dist <= 0.12 and
++                    hold_yaw <= math.radians(12.0)), stamp
+ 
+         # One bounded re-capture is allowed if POINT's first post-abort
+         # samples were delayed. This does NOT retry a waypoint or ARM.
+@@ -1720,7 +1753,7 @@
+                 rospy.sleep(0.02)
+             if verified:
+                 break
+-            rospy.logwarn('[HANDOFF_V2] POINT HOLD not verified; retry %d/2', attempt + 1)
++            rospy.logwarn('[HANDOFF_V3] POINT HOLD not verified; retry %d/2', attempt + 1)
+         if not verified:
+             raise RuntimeError('POINT rejoin veto: fresh current HOLD not verified')
+ 
+@@ -1780,7 +1813,7 @@
+                     good += 1
+                     last_output = stamp
+                     if good >= 3:
+-                        rospy.logwarn('[HANDOFF_V2] POINT verified through MAVROS output')
++                        rospy.logwarn('[HANDOFF_V3] POINT verified through MAVROS output')
+                         return
+                 elif not ok:
+                     good = 0
+@@ -1793,7 +1826,7 @@
+             try:
+                 self.call_service(disable)
+             except Exception as disable_error:
+-                rospy.logerr('[HANDOFF_V2] disable_trajectory failed: %s', disable_error)
++                rospy.logerr('[HANDOFF_V3] disable_trajectory failed: %s', disable_error)
+             raise
+ 
+ 

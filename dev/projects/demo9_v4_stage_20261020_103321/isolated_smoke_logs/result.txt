@@ -1,0 +1,5 @@
+[OK] Old POINT -> switch refused: continuity veto: position_jump_1.000m
+[OK] Fresh POINT -> MUX -> TrajectoryInterface -> synthetic MAVROS target
+[OK] Late POINT yaw spike refused, downstream falls back to HOLD
+[OK] Continuity restored without re-enabling old trajectory
+PASS: isolated ROS synthetic handoff and downstream HOLD
