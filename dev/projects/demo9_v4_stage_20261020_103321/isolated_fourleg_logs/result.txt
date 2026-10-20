@@ -1,5 +1,0 @@
-[PASS] synthetic leg 1/4: EGO -> HOLD -> stale reject -> POINT -> glitch recovery
-[PASS] synthetic leg 2/4: EGO -> HOLD -> stale reject -> POINT -> glitch recovery
-[PASS] synthetic leg 3/4: EGO -> HOLD -> stale reject -> POINT -> glitch recovery
-[PASS] synthetic leg 4/4: EGO -> HOLD -> stale reject -> POINT -> glitch recovery
-PASS: 4 synthetic EGO/POINT handoff cycles (no PX4, no real planner)

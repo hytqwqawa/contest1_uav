@@ -1,1 +1,0 @@
-/home/yundrone/contest1_uav/demo/09_demo8_posctl_integrated_v1/demo8_terminal_yaw.py

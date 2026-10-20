@@ -1,4 +1,0 @@
-ROS_PACKAGE_PATH=/home/yundrone/contest1_uav/runtime/ego_uav_ws/src:/home/yundrone/contest1_uav/runtime/Fast-Drone-250/src:/home/yundrone/contest1_uav/runtime/sunray_ws/src:/opt/ros/noetic/share
-PKG=/home/yundrone/contest1_uav/runtime/ego_uav_ws/src/ego_uav_interface
-BASE=/home/yundrone/contest1_uav/demo/09_demo8_posctl_integrated_v1
-DATE=2026-10-20T09:52:37+08:00
