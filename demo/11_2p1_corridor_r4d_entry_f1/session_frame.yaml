@@ -1,0 +1,57 @@
+demo5_plan_snapshot:
+  fence:
+    forward_min: -1.0
+    forward_max: 6.0
+    left_min: -2.0
+    left_max: 3.0
+    height_min: -0.25
+    height_max: 1.3
+  flight_height: 0.8
+  segment_timeout_s: 90.0
+  waypoint_margin: 0.2
+  waypoints: &id001
+  - forward: 3.0
+    left: 0.0
+    mode: EGO
+    yaw_deg: 0.0
+  - forward: 4.061
+    left: -0.439
+    mode: EGO
+    yaw_deg: -135.0
+  - forward: 4.5
+    left: -1.5
+    mode: EGO
+    yaw_deg: -180.0
+demo5_waypoints: *id001
+origin_world:
+  x: -0.058172337245196104
+  y: 0.001566388425999321
+  z: -0.030375924613326787
+forward_world:
+  x: 0.9999577177305261
+  y: 0.009195800734976202
+left_world:
+  x: -0.009195800734976202
+  y: 0.9999577177305261
+demo_fence:
+  forward_min: -1.0
+  forward_max: 6.0
+  left_min: -2.0
+  left_max: 3.0
+  height_min: -0.25
+  height_max: 1.3
+goal_demo:
+  forward: 4.5
+  left: -1.5
+  height: 0.8
+goal_world:
+  x: 4.455431093644636
+  y: -1.456989084862397
+  z: 0.7696240753866732
+ego_compatibility_aabb:
+  x_min: -1.1357174571806508
+  x_max: 6.009965570607913
+  y_min: -2.057544847770029
+  y_max: 3.1066143460274347
+  z_min: 0.41962407538667323
+  z_max: 1.2696240753866732

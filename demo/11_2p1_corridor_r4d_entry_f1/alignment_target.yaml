@@ -1,0 +1,8 @@
+traj_id: 1
+execution_initial_yaw_deg: 30.148707973435098
+planning_actual_yaw_deg: 0.5770243475814827
+execution_yaw_error_deg: 29.571683625853627
+yaw_time_forward: 1.0
+yaw_forward_distance: 0.16005437259221614
+alignment_lookahead: 5.000000000000002
+created_wall_time: 1792671732.9060447

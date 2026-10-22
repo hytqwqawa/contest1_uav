@@ -1,0 +1,15 @@
+# Demo11 R2 review only. L+ = pilot-demo LEFT; L- = RIGHT.
+# The submitted wall values are used by numeric value (not the reversed wall labels).
+# Reported physical width ~0.40m => assumed radius 0.20m (must be remeasured).
+# 0.15m tracking allowance is a test-informed ASSUMPTION, not an upper-bound guarantee.
+# 0.10m additional wall reserve is provisional. NOT competition safety certification.
+# Because the drone has finite size, the wall guard extends into F [-0.2, 3.2].
+# Beyond that segment only the original global Demo5 fence remains.
+straight:
+  f_start: 0.0
+  f_end: 3.0
+  l_min: -0.5
+  l_max: 1.0
+  body_radius: 0.20
+  tracking_allowance: 0.15
+  reserve: 0.10
