@@ -1,6 +1,0 @@
-{
-  "original_planner_manager_sha256": "1e54e4f3edbc89aad83e99d620e9a279a4060900b5ff1e64da7d99eed153f218",
-  "reviewed_patched_planner_manager_sha256": "490eb254ee36b2fa4d1021f657ebcc79d6c074852254808b72c248ada62e37ea",
-  "source": "/home/yundrone/contest1_uav/runtime/Fast-Drone-250/src",
-  "flight_tested": false
-}

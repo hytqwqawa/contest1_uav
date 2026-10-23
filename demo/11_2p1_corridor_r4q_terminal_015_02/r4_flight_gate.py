@@ -19,7 +19,7 @@ import xmlrpc.client
 
 D = Path(__file__).resolve().parent
 ROOT = Path.home() / 'contest1_uav'
-WS = ROOT / 'dev/projects/demo11_p2_guard_ws'
+WS = ROOT / 'runtime/demo11_p2_guard_ws'
 STAMP = D / '.r4h_launch_intent.json'
 MASTER = 'http://192.168.8.101:11311'
 BRIDGE_HASH = '4834c2964b7ef191940c492da8297146f97185597773910bea5c07e6c21c5769'

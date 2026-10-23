@@ -16,7 +16,7 @@ DEMO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$ROOT/runtime/env.sh"
 
 # PRIVATE_PLANNER_PACKAGE: R3 dedicated EGO build. Never touch runtime.
-R3_PRIVATE_WS="$ROOT/dev/projects/demo11_p2_guard_ws"
+R3_PRIVATE_WS="$ROOT/runtime/demo11_p2_guard_ws" # dedicated Demo11 runtime workspace
 R3_EGO_BIN="$R3_PRIVATE_WS/devel/lib/ego_planner/ego_planner_node"
 R3_TRAJ_BIN="$R3_PRIVATE_WS/devel/lib/ego_planner/traj_server"
 [ -x "$R3_EGO_BIN" ] && [ -x "$R3_TRAJ_BIN" ] || {
