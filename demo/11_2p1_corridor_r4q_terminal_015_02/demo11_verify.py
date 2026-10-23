@@ -57,7 +57,7 @@ def static_check(quiet=False):
             fail('known unsafe obstacle bypass unexpectedly accepted')
         # Launch is outside the straight corridor: previously rejected -0.065m.
         c.check_center(0.011, -0.065)
-        if (abs(c.f_start-1.0)>1e-9 or abs(c.f_guard_min-0.8)>1e-9 or abs(c.clearance-0.35)>1e-9 or abs(c.center_l_min+0.15)>1e-9):
+        if (abs(c.f_start-1.0)>1e-9 or abs(c.f_guard_min-0.8)>1e-9 or abs(c.clearance-0.35)>1e-9 or abs(c.center_l_min+0.75)>1e-9 or abs(c.center_l_max-0.75)>1e-9):
             fail('R4I physical corridor does not begin at F=1m')
         c.check_center(3.5, 0.25)
         c.check_center(4.5, -1.5)

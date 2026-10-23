@@ -35,10 +35,10 @@
     "ACCEPTED.sha256": "3a92f7f5b0683554433bf6235ed673dcefcbe791d222da8a96aed6474eddcef6",
     "README_R4Q.md": "3b9ccd5ac682da3cb583d0871b9b07846825e2e28dcb09bf8077198e2fd74e46",
     "RUNTIME.sha256": "d072bb500086759b011aae2d859d461c971ceeac348d6d8e7eea87d153097cb1",
-    "demo11_corridor.py": "d3e6cc8cea7f979adba66048b6e7d6b16d9ce7e501892d007eb75ee6a214959f",
-    "demo11_corridor.yaml": "bb5aa75eaf45675adc2ac01c92ad5dd7e31f176e7f924781e4b066d51902c3c3",
+    "demo11_corridor.py": "59f8ad5331be9be5d8d155331bbda5ee3cb7c0f13ea3ad6d6a5852c7e8e22c31",
+    "demo11_corridor.yaml": "e74c37645363ceb1e5498a669a332deeac317e52e0b46ede956f37b655827717",
     "demo11_rviz_geometry.py": "506383dbf6f72f2fb8faba2586f0b1d60c0fdeac4a18bf9619edbcfef3c8c735",
-    "demo11_verify.py": "7fa234b71b703168e6520a02fc473db8e3bdfe691beb8b5572d634fdcafb225f",
+    "demo11_verify.py": "8951e58c1dd0873bd70dc4290bf8f93f504e95c11dd0b4e70d71eef9351b65c4",
     "demo5_config.py": "bb0d92069985a2ea919ae864d3d3e4741cf73a0563a57253cf4249fb745757bb",
     "demo5_waypoints.yaml": "0ec2a9d056e8a1eb9bd795aadcbaed18188e2263d7b078f3eed817a1aea09b70",
     "demo7_qr_monitor.py": "9840f551cda68ef3754133641a8fd3bbf65cb4c3ca06a5c2630df18b5dae7946",
@@ -103,15 +103,16 @@
   "corridor_numeric": {
     "f_start": 1.0,
     "f_end": 3.0,
-    "l_min": -0.5,
-    "l_max": 1.0,
+    "l_min": -1.05,
+    "l_max": 1.1,
     "body_radius": 0.2,
     "tracking_allowance": 0.15,
     "reserve": 0.0,
     "center_f_guard_min": 0.8,
     "center_f_guard_max": 3.2,
-    "center_l_min": -0.15,
-    "center_l_max": 0.65
+    "center_l_min": -0.75,
+    "center_l_max": 0.75,
+    "lmin_tracking_allowance": 0.1
   },
   "r3_notes": "50Hz final interface admission+continuous HOLD; private Planner workspace; not flown",
   "r4d_notes": "Physical straight walls only from F1m; finite-body guard begins F0.8m. Launch at F0 outside straight walls.",
@@ -124,5 +125,7 @@
   "safety_note": "bounded corridor reject recovery only after fresh physical POINT verification",
   "release": "R4Q terminal XY0.15/stable0.20",
   "release_notes": "Only final P3 translation arrival (before FIXED yaw) is relaxed. No extra gates. See README_R4Q.md.",
-  "height_policy": "0.8m goal; original 3D EGO Z/VZ/AZ; nominal altitude checks removed; global 3D fence/takeoff/R3/PX4 safety retained"
+  "height_policy": "0.8m goal; original 3D EGO Z/VZ/AZ; nominal altitude checks removed; global 3D fence/takeoff/R3/PX4 safety retained",
+  "corridor_right_trial_note": "Artificial right L=-1.00, center min=-0.70: body radius 0.20 + right tracking 0.10; left max +0.65 remains unchanged; no wall asserted.",
+  "corridor_symmetric_075_trial_note": "Current R2 open-area center L[-0.75,+0.75] for F[+0.8,+3.2]. Artificial references [-1.05,+1.10], body radius .20, right tracking .10, left tracking .15. EGO inflation and all flight logic unchanged. Earlier corridor_right_trial_note is historical."
 }

@@ -22,6 +22,7 @@ class StraightCorridor:
     l_max: float
     body_radius: float
     tracking_allowance: float
+    lmin_tracking_allowance: float
     reserve: float
 
     @property
@@ -30,7 +31,8 @@ class StraightCorridor:
 
     @property
     def center_l_min(self):
-        return self.l_min + self.clearance
+        # Right (negative L): user-defined open-area reference, not a measured wall.
+        return self.l_min + (self.body_radius + self.lmin_tracking_allowance + self.reserve)
 
     @property
     def center_l_max(self):
@@ -190,7 +192,7 @@ def load_corridor(path):
         raise CorridorViolation('corridor config must contain straight: mapping')
     s = raw['straight']
     required = ('f_start', 'f_end', 'l_min', 'l_max', 'body_radius',
-                'tracking_allowance', 'reserve')
+                'tracking_allowance', 'lmin_tracking_allowance', 'reserve')
     if not isinstance(s, dict) or set(s) != set(required):
         raise CorridorViolation('corridor config unexpected/missing keys')
     v = {}
@@ -201,13 +203,15 @@ def load_corridor(path):
         v[k] = float(x)
     c = StraightCorridor(**v)
     if (c.f_end <= c.f_start or c.l_max <= c.l_min or
-            c.body_radius <= 0 or c.tracking_allowance < 0 or c.reserve < 0 or
+            c.body_radius <= 0 or c.tracking_allowance < 0 or
+            c.lmin_tracking_allowance < 0 or c.reserve < 0 or
             c.center_l_min >= c.center_l_max):
         raise CorridorViolation('invalid corridor/clearance geometry')
-    # Frozen R4D reviewed wall start F=1m (not the takeoff origin F=0),
-    # width 1.5m and R4E reduced but finite body/tracking margins are fixed.
-    expected = {'f_start':1.,'f_end':3.,'l_min':-0.5,'l_max':1.,
-                'body_radius':0.20,'tracking_allowance':0.15,'reserve':0.0}
+    # Same F zone; symmetric center-line bounds +/-0.75 from open-area references.
+    # Right tracking .10; left tracking .15; EGO obstacle inflation unchanged.
+    expected = {'f_start':1.,'f_end':3.,'l_min':-1.05,'l_max':1.10,
+                'body_radius':0.20,'tracking_allowance':0.15,
+                'lmin_tracking_allowance':0.10,'reserve':0.0}
     if any(abs(v[k] - required_value)>1e-9 for k, required_value in expected.items()):
         raise CorridorViolation('R2 reviewed corridor/clearance constants changed')
     return c

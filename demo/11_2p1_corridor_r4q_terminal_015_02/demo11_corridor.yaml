@@ -1,15 +1,18 @@
 # Demo11 R2 review only. L+ = pilot-demo LEFT; L- = RIGHT.
-# The submitted wall values are used by numeric value (not the reversed wall labels).
+# L=-1.05 (right) and +1.10 (left) are artificial open-area reference lines, NOT physical walls.
+# Pole is near L=+0.25; plan to bypass on the negative-L/right side.
 # Reported physical width ~0.40m => assumed radius 0.20m (must be remeasured).
-# 0.15m tracking allowance is a test-informed ASSUMPTION, not an upper-bound guarantee.
-# R4E: extra 0.10m reserve removed, body 0.20m + tracking allowance 0.15m RETAINED. NOT certified.
-# Body-center wall guard begins at F=0.8 (1.0 minus 0.20m body radius).
+# Tracking margins are assumptions: LEFT +L .15m; RIGHT -L .10m.
+# Symmetric allowed center right: -1.05 + body .20 + right tracking .10 = -0.75m.
+# Symmetric allowed center left: +1.10 - body .20 - left tracking .15 = +0.75m.
+# Body-center reference corridor guard begins at F=0.8 (1.0 minus 0.20m radius).
 # Beyond that segment only the original global Demo5 fence remains.
 straight:
   f_start: 1.0
   f_end: 3.0
-  l_min: -0.5
-  l_max: 1.0
+  l_min: -1.05
+  l_max: 1.10
   body_radius: 0.20
   tracking_allowance: 0.15
+  lmin_tracking_allowance: 0.10
   reserve: 0.0
