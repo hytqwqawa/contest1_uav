@@ -14,7 +14,7 @@
 
     <param name="max_speed" value="0.20" />
     <param name="takeoff_height" value="0.80" />
-    <param name="takeoff_speed"  value="0.40" />
+    <param name="takeoff_speed"  value="0.50" />
     <param name="takeoff_acc"    value="0.80" />
 
     <!-- Proven V4 landing -->
