@@ -363,7 +363,7 @@ class EgoTrajectoryBridge:
 
 	    try:
 		  z_ref = float(rospy.get_param(
-		      "/contest2/ego_uav_interface/terminal_yaw_hold_z"
+		      "/contest1/ego_uav_interface/terminal_yaw_hold_z"
 		  ))
 	    except (KeyError, TypeError, ValueError):
 		  rospy.logerr("[FIXED] target height unavailable")

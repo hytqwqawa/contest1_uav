@@ -2212,7 +2212,7 @@ class TangentPreview:
                 self.active_wp_num, self.wp_total, world_yaw_deg)))
         rospy.logwarn("[DEMO8] terminal yaw target WORLD=%+.1f deg", world_yaw_deg)
         rospy.set_param(
-            "/contest2/ego_uav_interface/terminal_yaw_hold_z",
+            "/contest1/ego_uav_interface/terminal_yaw_hold_z",
             float(gz)
 	)
         self.yaw_target_pub.publish(Float64(data=world_yaw_deg))
