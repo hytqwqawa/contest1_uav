@@ -9,9 +9,6 @@
   <arg name="manager"             default="realsense2_camera_manager"/>
   <arg name="output"              default="screen"/>
   <arg name="respawn"              default="false"/>
-  <arg name="diagnostics_topic"    default="/diagnostics"/>
-  <arg name="tf_topic"             default="/tf"/>
-  <arg name="tf_static_topic"      default="/tf_static"/>
 
   <arg name="fisheye_width"       default="640"/>
   <arg name="fisheye_height"      default="480"/>
@@ -77,9 +74,9 @@
   
 
   <group ns="$(arg camera)">
-    <remap from="/diagnostics" to="$(arg diagnostics_topic)"/>
-    <remap from="/tf" to="$(arg tf_topic)"/>
-    <remap from="/tf_static" to="$(arg tf_static_topic)"/>
+    <remap from="/tf" to="/contest2/tf"/>
+    <remap from="/tf_static" to="/contest2/tf_static"/>
+    <remap from="/diagnostics" to="/contest2/diagnostics"/>
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
       <arg name="tf_prefix"                value="$(arg tf_prefix)"/>
       <arg name="external_manager"         value="$(arg external_manager)"/>

@@ -1,11 +1,11 @@
 # Contest 2.1 Demo11: three-point RIGHT-turn arc MIDPOINT observation.
 # Base: frozen Demo10 10_demo9_v4_success, no planner/MUX/frame guard changes.
 # F is aircraft nose direction at Demo-frame capture. L positive to its left.
-# R4G: P1 (=P1B) stages after the wall end; EGO still validates the entire bend.
+# P1 centerline trial: F+3.500 L+0.000; EGO still validates the entire bend.
 # P2: original 90-degree arc-length midpoint, observe
 # target after arrival at FIXED yaw -135 deg. P3: final arc endpoint.
 # Geometric C = (F3.000,L-1.500), R=1.500m; P2 rounded to millimetres.
-# The arc is a REFERENCE only; R4I P1B is deliberately offset from its circle start.
+# The arc remains a REFERENCE only; centerline P1 is not a forced EGO path.
 # EGO is not constrained to fly an exact arc.
 # At every EGO endpoint the existing Demo8 terminal yaw is validated, then
 # V4 EGO->POINT fresh HOLD protects the next leg.
@@ -25,6 +25,6 @@ segment_timeout_s: 90.0
 waypoint_margin: 0.2
 
 waypoints:
-  - {forward: 3.500, left: 0.250, mode: EGO, yaw_deg: 0.0}    # P1=P1B after straight exit staging
+  - {forward: 3.500, left: 0.000, mode: EGO, yaw_deg: 0.0}    # P1 centerline trial
   - {forward: 4.061, left: -0.439, mode: EGO, yaw_deg: -135.0} # P2 arc MIDPOINT; observe
   - {forward: 4.500, left: -1.500, mode: EGO, yaw_deg: -180.0} # P3 final + POSCTL handoff

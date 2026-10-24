@@ -426,23 +426,23 @@ int main(int argc, char **argv)
   // absolute /move_base_simple/goal topic.
   ros::Subscriber preview_goal_sub =
       nh.subscribe(
-          "/contest1/move_base_simple/goal",
+          "/contest2/move_base_simple/goal",
           10,
           previewGoalCallback);
 
   ros::Subscriber odom_sub =
       nh.subscribe(
-          "/contest1/mavros/local_position/odom",
+          "/contest2/mavros/local_position/odom",
           50,
           odomCallback);
 
   ros::Subscriber start_trigger_sub =
       nh.subscribe(
-          "/contest1/traj_start_trigger",
+          "/contest2/traj_start_trigger",
           10,
           startTriggerCallback);
 
-  pos_cmd_pub = nh.advertise<quadrotor_msgs::PositionCommand>("/contest1/position_cmd", 50);
+  pos_cmd_pub = nh.advertise<quadrotor_msgs::PositionCommand>("/contest2/position_cmd", 50);
 
   ros::Timer cmd_timer = nh.createTimer(ros::Duration(0.01), cmdCallback);
 

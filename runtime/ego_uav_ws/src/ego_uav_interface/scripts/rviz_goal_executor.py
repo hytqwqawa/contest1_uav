@@ -84,21 +84,21 @@ class RvizGoalExecutor:
         # ----------------------------------------------------
 
         self.ego_goal_pub = rospy.Publisher(
-            "/contest1/move_base_simple/goal",
+            "/contest2/move_base_simple/goal",
             PoseStamped,
             queue_size=1
         )
 
         # Used by visualizer + console.
         self.active_goal_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/active_rviz_goal",
+            "/contest2/ego_uav_interface/active_rviz_goal",
             PoseStamped,
             queue_size=1,
             latch=True
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/rviz_goal_status",
+            "/contest2/ego_uav_interface/rviz_goal_status",
             String,
             queue_size=1,
             latch=True
@@ -109,49 +109,49 @@ class RvizGoalExecutor:
         # ----------------------------------------------------
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/rviz_goal",
+            "/contest2/ego_uav_interface/rviz_goal",
             PoseStamped,
             self.goal_cb,
             queue_size=1
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/local_position/odom",
+            "/contest2/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=30
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/state",
+            "/contest2/mavros/state",
             State,
             self.state_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/rc_mission_allowed",
+            "/contest2/ego_uav_interface/rc_mission_allowed",
             Bool,
             self.mission_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/trajectory_mux_status",
+            "/contest2/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/drone_0_planning/bspline",
+            "/contest2/drone_0_planning/bspline",
             Bspline,
             self.bspline_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/position_cmd",
+            "/contest2/position_cmd",
             PositionCommand,
             self.position_cmd_cb,
             queue_size=100
@@ -251,14 +251,14 @@ class RvizGoalExecutor:
 
         try:
             self.call_trigger(
-                "/contest1/ego_uav_interface/disable_trajectory"
+                "/contest2/ego_uav_interface/disable_trajectory"
             )
         except Exception:
             pass
 
         try:
             self.call_trigger(
-                "/contest1/ego_uav_interface/use_point"
+                "/contest2/ego_uav_interface/use_point"
             )
         except Exception:
             pass
@@ -408,12 +408,12 @@ class RvizGoalExecutor:
         # ====================================================
 
         p2_cfg_x = rospy.get_param(
-            "/auto_course_mission/p2_x",
+            "/contest2/auto_course_mission/p2_x",
             -2.2
         )
 
         p2_cfg_y = rospy.get_param(
-            "/auto_course_mission/p2_y",
+            "/contest2/auto_course_mission/p2_y",
             0.5
         )
 
@@ -455,14 +455,14 @@ class RvizGoalExecutor:
 
 
             yaw_mode_pub = rospy.Publisher(
-                "/contest1/ego_uav_interface/yaw_mode",
+                "/contest2/ego_uav_interface/yaw_mode",
                 String,
                 queue_size=1,
                 latch=True
             )
 
             yaw_target_pub = rospy.Publisher(
-                "/contest1/ego_uav_interface/yaw_target_deg",
+                "/contest2/ego_uav_interface/yaw_target_deg",
                 Float64,
                 queue_size=1,
                 latch=True
@@ -627,7 +627,7 @@ class RvizGoalExecutor:
                 try:
 
                     candidate = rospy.wait_for_message(
-                        "/contest1/position_cmd",
+                        "/contest2/position_cmd",
                         PositionCommand,
                         timeout=0.20
                     )
@@ -693,7 +693,7 @@ class RvizGoalExecutor:
                 try:
 
                     pcmd = rospy.wait_for_message(
-                        "/contest1/position_cmd",
+                        "/contest2/position_cmd",
                         PositionCommand,
                         timeout=0.20
                     )
@@ -817,7 +817,7 @@ class RvizGoalExecutor:
         # ----------------------------------------------------
 
         bridge = rospy.wait_for_message(
-            "/contest1/ego_uav_interface/ego_setpoint",
+            "/contest2/ego_uav_interface/ego_setpoint",
             PositionTarget,
             timeout=1.0
         )
@@ -841,7 +841,7 @@ class RvizGoalExecutor:
         # ----------------------------------------------------
 
         r = self.call_trigger(
-            "/contest1/ego_uav_interface/use_ego"
+            "/contest2/ego_uav_interface/use_ego"
         )
 
         if not r.success:
@@ -887,7 +887,7 @@ class RvizGoalExecutor:
         if align_before_start:
 
             r = self.call_trigger(
-                "/contest1/ego_uav_interface/enable_trajectory"
+                "/contest2/ego_uav_interface/enable_trajectory"
             )
 
             if not r.success:
@@ -922,20 +922,20 @@ class RvizGoalExecutor:
 
             yaw_tol = math.radians(
                 rospy.get_param(
-                    "/auto_course_mission/"
+                    "/contest2/auto_course_mission/"
                     "yaw_tolerance_deg",
                     8.0
                 )
             )
 
             stable_required = rospy.get_param(
-                "/auto_course_mission/"
+                "/contest2/auto_course_mission/"
                 "yaw_stable_time",
                 0.8
             )
 
             yaw_timeout = rospy.get_param(
-                "/auto_course_mission/"
+                "/contest2/auto_course_mission/"
                 "yaw_timeout",
                 15.0
             )
@@ -1089,7 +1089,7 @@ class RvizGoalExecutor:
         # ----------------------------------------------------
 
         trigger_pub = rospy.Publisher(
-            "/contest1/traj_start_trigger",
+            "/contest2/traj_start_trigger",
             PoseStamped,
             queue_size=1
         )
@@ -1114,7 +1114,7 @@ class RvizGoalExecutor:
             < 2
         ):
             raise RuntimeError(
-                "/contest1/traj_start_trigger requires "
+                "/contest2/traj_start_trigger requires "
                 "both EGO and traj_server subscribers"
             )
 
@@ -1242,7 +1242,7 @@ class RvizGoalExecutor:
             # P1 remained in trajectory_interface HOLD until
             # post-trigger first-gap was proven safe.
             r = self.call_trigger(
-                "/contest1/ego_uav_interface/enable_trajectory"
+                "/contest2/ego_uav_interface/enable_trajectory"
             )
 
             if not r.success:

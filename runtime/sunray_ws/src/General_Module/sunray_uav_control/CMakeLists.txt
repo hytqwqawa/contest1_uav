@@ -52,25 +52,27 @@ include_directories(
 ##      声明可执行cpp文件     ##
 ###############################
 add_library(uav_control src/uav_control.cpp)
+add_dependencies(uav_control ${catkin_EXPORTED_TARGETS})
+
 add_executable(sunray_control_node src/sunray_control_node.cpp)
-add_dependencies(sunray_control_node sunray_control_gencpp)
+add_dependencies(sunray_control_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(sunray_control_node ${catkin_LIBRARIES})
 target_link_libraries(sunray_control_node uav_control)
 
 add_executable(vision_pose_node src/vision_pose_node.cpp)
-add_dependencies(vision_pose_node sunray_control_gencpp)
+add_dependencies(vision_pose_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(vision_pose_node ${catkin_LIBRARIES})
 
 add_executable(uav_command_pub utils/uav_command_pub.cpp)
-add_dependencies(uav_command_pub sunray_control_gencpp)
+add_dependencies(uav_command_pub ${catkin_EXPORTED_TARGETS})
 target_link_libraries(uav_command_pub ${catkin_LIBRARIES})
 
 add_executable(uav_control_mode_pub utils/uav_control_mode_pub.cpp)
-add_dependencies(uav_control_mode_pub sunray_control_gencpp)
+add_dependencies(uav_control_mode_pub ${catkin_EXPORTED_TARGETS})
 target_link_libraries(uav_control_mode_pub ${catkin_LIBRARIES})
 
 add_executable(show_detail_node utils/show_detail.cpp)
-add_dependencies(show_detail_node sunray_control_gencpp)
+add_dependencies(show_detail_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(show_detail_node ${catkin_LIBRARIES})
 
 

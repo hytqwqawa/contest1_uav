@@ -10,7 +10,7 @@ class CameraExtrinsicPublisher:
 
         self.topic = rospy.get_param(
             "~topic",
-            "/contest1/vins_fusion/extrinsic"
+            "/contest2/vins_fusion/extrinsic"
         )
 
         # Camera optical center expressed in body FLU frame:

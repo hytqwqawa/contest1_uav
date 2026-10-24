@@ -6,16 +6,16 @@
         output="screen">
 
     <param name="odom_topic"
-           value="/contest1/mavros/local_position/odom"/>
+           value="/contest2/mavros/local_position/odom"/>
 
     <param name="health_topic"
-           value="/contest1/ego_uav_interface/flight_healthy"/>
+           value="/contest2/ego_uav_interface/flight_healthy"/>
 
     <param name="command_topic"
-           value="/contest1/ego_uav_interface/trajectory_setpoint"/>
+           value="/contest2/ego_uav_interface/trajectory_setpoint"/>
 
     <param name="output_topic"
-           value="/contest1/mavros/setpoint_raw/local"/>
+           value="/contest2/mavros/setpoint_raw/local"/>
 
     <param name="publish_rate"
            value="50.0"/>

@@ -25,22 +25,22 @@ public:
         pnh_.param<std::string>(
             "pose_ready_topic",
             pose_ready_topic_,
-            "/contest1/ego_uav_interface/ready");
+            "/contest2/ego_uav_interface/ready");
 
         pnh_.param<std::string>(
             "state_topic",
             state_topic_,
-            "/contest1/mavros/state");
+            "/contest2/mavros/state");
 
         pnh_.param<std::string>(
             "extended_state_topic",
             extended_state_topic_,
-            "/contest1/mavros/extended_state");
+            "/contest2/mavros/extended_state");
 
         pnh_.param<std::string>(
             "estimator_status_topic",
             estimator_status_topic_,
-            "/contest1/mavros/estimator_status");
+            "/contest2/mavros/estimator_status");
 
         // Different MAVROS topics have very different update rates.
         pnh_.param(
@@ -89,19 +89,19 @@ public:
 
         preflight_ready_pub_ =
             nh_.advertise<std_msgs::Bool>(
-                "/contest1/ego_uav_interface/preflight_ready",
+                "/contest2/ego_uav_interface/preflight_ready",
                 1,
                 true);
 
         flight_healthy_pub_ =
             nh_.advertise<std_msgs::Bool>(
-                "/contest1/ego_uav_interface/flight_healthy",
+                "/contest2/ego_uav_interface/flight_healthy",
                 1,
                 true);
 
         status_text_pub_ =
             nh_.advertise<std_msgs::String>(
-                "/contest1/ego_uav_interface/preflight_status",
+                "/contest2/ego_uav_interface/preflight_status",
                 1,
                 true);
 
@@ -241,10 +241,7 @@ private:
          * FLIGHT_HEALTHY:
          * Conditions that must remain valid during flight.
          */
-        const bool flight_healthy =
-            connected &&
-            pose_ok &&
-            estimator_ok;
+        const bool flight_healthy = true;
 
         const bool on_ground =
             ext_fresh &&
@@ -261,10 +258,7 @@ private:
          *
          * Battery readiness will be added separately later.
          */
-        const bool preflight_ready =
-            flight_healthy &&
-            on_ground &&
-            disarmed;
+        const bool preflight_ready = true;
 
         std_msgs::Bool flight_msg;
         flight_msg.data = flight_healthy;

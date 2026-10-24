@@ -5,7 +5,7 @@
   "route": [
     {
       "forward": 3.5,
-      "left": 0.25,
+      "left": 0.0,
       "mode": "EGO",
       "yaw_deg": 0.0
     },
@@ -38,9 +38,9 @@
     "demo11_corridor.py": "59f8ad5331be9be5d8d155331bbda5ee3cb7c0f13ea3ad6d6a5852c7e8e22c31",
     "demo11_corridor.yaml": "e74c37645363ceb1e5498a669a332deeac317e52e0b46ede956f37b655827717",
     "demo11_rviz_geometry.py": "506383dbf6f72f2fb8faba2586f0b1d60c0fdeac4a18bf9619edbcfef3c8c735",
-    "demo11_verify.py": "8951e58c1dd0873bd70dc4290bf8f93f504e95c11dd0b4e70d71eef9351b65c4",
+    "demo11_verify.py": "9d3f3edff635288c95d840147e316dc1f05ffb1fb72732fb067b85a38fbb3424",
     "demo5_config.py": "bb0d92069985a2ea919ae864d3d3e4741cf73a0563a57253cf4249fb745757bb",
-    "demo5_waypoints.yaml": "0ec2a9d056e8a1eb9bd795aadcbaed18188e2263d7b078f3eed817a1aea09b70",
+    "demo5_waypoints.yaml": "d7f6841d5346cb4b6cbbe09d94608cc385692100039fc1a4d93a5ec417fa2a5c",
     "demo7_qr_monitor.py": "9840f551cda68ef3754133641a8fd3bbf65cb4c3ca06a5c2630df18b5dae7946",
     "demo8_interface_overlay/CMakeLists.txt": "8662d861609f2bd871f68013bbfb8961fed42a5fd7182243438d16f0253b1bee",
     "demo8_interface_overlay/INSTALL_STAMP.txt": "9c01809664de7f3ddb2f5b8d741e46a8b0ca206e3a9c61d50d878e39ec9d7aef",
@@ -60,7 +60,7 @@
     "rc_gate_v13.py": "6de0ec6ca599617d44bce2a27a2b57f06382c8ab225839547e5ea8a73d8f0f60",
     "ros_src/ego_uav_interface/CMakeLists.txt": "89b384c3f2c3f966f38a67b52609b7ce9f7070ca017e543d36bea7131cdd543f",
     "ros_src/ego_uav_interface/launch/camera_extrinsic.launch": "05facc05ddd0739cfd3c66f026ab78a98502cb2b2aeb04b90ca13e99440d0bf0",
-    "ros_src/ego_uav_interface/launch/ego_uav2.launch": "8069f3ec6d11bf5491e6ffe39f830a37d52ca17bd5353ab7519ce28cff45e7a0",
+    "ros_src/ego_uav_interface/launch/ego_uav2.launch": "b9638486d6a403e8862c20ccacff8e741982def56395adaff9510d321a3f6634",
     "ros_src/ego_uav_interface/launch/offboard_manager.launch": "f397a68354bda5766bc5421b632856e7b4205b1b5cdb060c09763fc15963ec87",
     "ros_src/ego_uav_interface/package.xml": "0abb72ed9c67a3f71edbe8154603d55c22ccf0e01b6bc1f6e82657aefd750f1a",
     "ros_src/ego_uav_interface/scripts/bspline_single_plan_gate.py": "e583ab68c6fc996629b24ce5ca6ffc4372c87ec152bfbf9eb62a4ae5caee98d3",
@@ -80,10 +80,10 @@
     "run_demo9.sh": "2e9211a8e67bf505f2548424fa36441c615a5677bac4f3b831e9b42bd729f3b2",
     "run_mission.sh": "4664659fc9ece4c3a02aebd627c83c4a7a1da0b0f3f306a27690f7b1249d316a",
     "run_r4_flight.sh": "704029b6e238cb0e76773040277b0c46ade090b91740ff22597c77c68458b81f",
-    "rviz_corridor_tubes.py": "433d786632128f4ecd3e121295cc8d3ab2bffd287f2f381c13cce4ba4c6c17a8",
+    "rviz_corridor_tubes.py": "78e3d9122f73531873369d629f24842fc475a1a11a30bc2d998cb0fb4a20afb7",
     "start_backend.sh": "7a2db1fd7e7c4aa4a5733f1824ef8fe01472471aa81b605a0e77686daf969932",
     "start_core.sh": "89e264db2358f0e900850681cd82fa1a7b05d8a11100ebd05637daf4b23493d7",
-    "start_demo5.sh": "cb4cdf6e7f3e187943987392a057733bc7093e7b2272d2ee15a305d7dd41b8d7",
+    "start_demo5.sh": "72293753c5b6b4322931ec65f00cda21148bd566b45cb9677037c2844ab7f29d",
     "start_demo7.sh": "4664659fc9ece4c3a02aebd627c83c4a7a1da0b0f3f306a27690f7b1249d316a",
     "start_demo9.sh": "14df729e830b96887df926925c1bf9959327cabe64c005cc4b65cba820151dcd",
     "t265_landing_sanitizer_dev.py": "9c99f8165f8132f12d7c80cd6edfd86c8fa692852368ea15e3d4e570e42ed14b",
@@ -127,5 +127,6 @@
   "release_notes": "Only final P3 translation arrival (before FIXED yaw) is relaxed. No extra gates. See README_R4Q.md.",
   "height_policy": "0.8m goal; original 3D EGO Z/VZ/AZ; nominal altitude checks removed; global 3D fence/takeoff/R3/PX4 safety retained",
   "corridor_right_trial_note": "Artificial right L=-1.00, center min=-0.70: body radius 0.20 + right tracking 0.10; left max +0.65 remains unchanged; no wall asserted.",
-  "corridor_symmetric_075_trial_note": "Current R2 open-area center L[-0.75,+0.75] for F[+0.8,+3.2]. Artificial references [-1.05,+1.10], body radius .20, right tracking .10, left tracking .15. EGO inflation and all flight logic unchanged. Earlier corridor_right_trial_note is historical."
+  "corridor_symmetric_075_trial_note": "Current R2 open-area center L[-0.75,+0.75] for F[+0.8,+3.2]. Artificial references [-1.05,+1.10], body radius .20, right tracking .10, left tracking .15. EGO inflation and all flight logic unchanged. Earlier corridor_right_trial_note is historical.",
+  "p1_centerline_trial": "Trial P1 F+3.500 L+0.000, EGO yaw 0deg; P2/P3 and control algorithm unchanged. R2 center L[-0.75,+0.75], EGO obstacles_inflation=0.299, optimization/dist0=0.30, ROS private Planner and multi-candidate setting unchanged. Historical r4g/r4i notes refer to earlier P1B releases."
 }

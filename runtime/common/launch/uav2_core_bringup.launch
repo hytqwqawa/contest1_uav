@@ -2,44 +2,44 @@
 
   <!-- ===================================================== -->
   <!-- UAV2 CORE BRINGUP                                     -->
-  <!-- Namespace seen by upper layer is /contest1           -->
-  <!-- Raw T265 namespace remains /contest1                  -->
+  <!-- Namespace seen by upper layer is /contest2           -->
+  <!-- Raw T265 namespace is /contest2                  -->
   <!-- ===================================================== -->
 
 
   <!-- 1. T265 -->
-  <include file="$(env HOME)/contest1_uav/runtime/common/launch/uav2_t265_only.launch"/>
+  <include file="$(env HOME)/contest2_uav/runtime/common/launch/uav2_t265_only.launch"/>
 
   <!-- T265_NAN_GUARD_V1 -->
   <!-- Prevent invalid T265 pose from entering Sunray/PX4/TF -->
   <node pkg="ego_uav_interface"
         type="t265_nan_guard.py"
         name="t265_nan_guard"
-        ns="contest1"
+        ns="contest2"
         output="screen">
 
     <param name="raw_topic"
-           value="/contest1/t265/odom/sample"/>
+           value="/contest2/t265/odom/sample"/>
 
     <param name="filtered_topic"
-           value="/contest1/t265/odom/filtered"/>
+           value="/contest2/t265/odom/filtered"/>
 
   </node>
 
 
-  <!-- 2. MAVROS : PX4 -> /contest1/mavros -->
+  <!-- 2. MAVROS : PX4 -> /contest2/mavros -->
   <include file="$(find sunray_uav_control)/launch/sunray_mavros_exp.launch">
     <arg name="uav_name" value="contest"/>
-    <arg name="uav_id" value="1"/>
+    <arg name="uav_id" value="2"/>
   </include>
 
 
   <!-- 3. T265 / TOF -> MAVROS vision pose -->
-  <include file="$(find sunray_uav_control)/launch/vision_pose_node.launch" ns="contest1">
+  <include file="$(find sunray_uav_control)/launch/vision_pose_node.launch" ns="contest2">
     <arg name="uav_name" value="contest"/>
-    <arg name="uav_id" value="1"/>
+    <arg name="uav_id" value="2"/>
     <arg name="t265_odom_topic"
-         value="/contest1/t265/odom/filtered"/>
+         value="/contest2/t265/odom/filtered"/>
     <arg name="enable_rangeSensor"
          value="true"/>
   </include>
@@ -49,7 +49,7 @@
   <node pkg="ego_uav_interface"
         type="uav2_external_pose_adapter.py"
         name="uav2_external_pose_adapter"
-        ns="contest1"
+        ns="contest2"
         output="screen"/>
 
 
@@ -57,14 +57,14 @@
   <node pkg="ego_uav_interface"
         type="state_monitor_node"
         name="state_monitor_node"
-        ns="contest1"
+        ns="contest2"
         output="screen">
 
     <param name="mocap_pose_topic"
-           value="/contest1/ego_uav_interface/external_pose_ref"/>
+           value="/contest2/ego_uav_interface/external_pose_ref"/>
 
     <param name="px4_odom_topic"
-           value="/contest1/mavros/local_position/odom"/>
+           value="/contest2/mavros/local_position/odom"/>
 
     <param name="position_error_max"
            value="0.10"/>
@@ -85,7 +85,7 @@
   <node pkg="ego_uav_interface"
         type="preflight_monitor_node"
         name="preflight_monitor_node"
-        ns="contest1"
+        ns="contest2"
         output="screen"/>
 
 
@@ -93,15 +93,15 @@
   <node pkg="ego_uav_interface"
         type="rc_supervisor.py"
         name="rc_supervisor"
-        ns="contest1"
+        ns="contest2"
         output="screen"/>
 
 
   <!-- 8. Final MAVROS PositionTarget interface -->
-  <include file="$(find ego_uav_interface)/launch/trajectory_interface.launch" ns="contest1"/>
+  <include file="$(find ego_uav_interface)/launch/trajectory_interface.launch" ns="contest2"/>
 
 
   <!-- 9. PX4 OFFBOARD / POSCTL mode manager -->
-  <include file="$(find ego_uav_interface)/launch/offboard_manager.launch" ns="contest1"/>
+  <include file="$(find ego_uav_interface)/launch/offboard_manager.launch" ns="contest2"/>
 
 </launch>

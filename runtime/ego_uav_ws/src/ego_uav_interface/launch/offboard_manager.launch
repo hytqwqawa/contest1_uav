@@ -6,16 +6,16 @@
         output="screen">
 
     <param name="state_topic"
-           value="/contest1/mavros/state"/>
+           value="/contest2/mavros/state"/>
 
     <param name="health_topic"
-           value="/contest1/ego_uav_interface/flight_healthy"/>
+           value="/contest2/ego_uav_interface/flight_healthy"/>
 
     <param name="stream_ready_topic"
-           value="/contest1/ego_uav_interface/offboard_stream_ready"/>
+           value="/contest2/ego_uav_interface/offboard_stream_ready"/>
 
     <param name="set_mode_service"
-           value="/contest1/mavros/set_mode"/>
+           value="/contest2/mavros/set_mode"/>
 
     <param name="state_timeout"
            value="2.5"/>
@@ -31,6 +31,16 @@
 
     <param name="fallback_mode"
            value="POSCTL"/>
+
+    <!-- Native PX4 landing mode used only by guarded
+         request_land service. -->
+    <param name="land_mode"
+           value="AUTO.LAND"/>
+
+    <!-- Health monitoring remains active during this interval.
+         Only software OFFBOARD admission is delayed after ARM. -->
+    <param name="post_arm_settle_time"
+           value="5.0"/>
 
   </node>
 

@@ -324,7 +324,7 @@ class EgoSingleGoalDemo:
     def run_flight_ops(self, command):
 
         script = os.path.expanduser(
-            "~/contest1_uav/runtime/"
+            "~/contest2_uav/runtime/"
             "ego_uav_ws/src/ego_uav_interface/scripts/"
             "uav2_flight_ops_test.py"
         )

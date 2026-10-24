@@ -19,27 +19,27 @@ class OffboardManager:
 
         self.state_topic = rospy.get_param(
             "~state_topic",
-            "/contest1/mavros/state"
+            "/contest2/mavros/state"
         )
 
         self.health_topic = rospy.get_param(
             "~health_topic",
-            "/contest1/ego_uav_interface/flight_healthy"
+            "/contest2/ego_uav_interface/flight_healthy"
         )
 
         self.stream_ready_topic = rospy.get_param(
             "~stream_ready_topic",
-            "/contest1/ego_uav_interface/offboard_stream_ready"
+            "/contest2/ego_uav_interface/offboard_stream_ready"
         )
 
         self.rc_offboard_topic = rospy.get_param(
             "~rc_offboard_topic",
-            "/contest1/ego_uav_interface/rc_offboard_allowed"
+            "/contest2/ego_uav_interface/rc_offboard_allowed"
         )
 
         self.set_mode_service = rospy.get_param(
             "~set_mode_service",
-            "/contest1/mavros/set_mode"
+            "/contest2/mavros/set_mode"
         )
 
         self.state_timeout = rospy.get_param(
@@ -72,6 +72,26 @@ class OffboardManager:
             "POSCTL"
         )
 
+        # Native PX4 landing mode.
+        #
+        # This does NOT arm/disarm the vehicle.
+        # It is only exposed through the guarded request_land
+        # service added below.
+        self.land_mode = rospy.get_param(
+            "~land_mode",
+            "AUTO.LAND"
+        )
+
+        # POST_ARM_REQUALIFY_V1
+        #
+        # Keep all health monitoring active after ARM.
+        # Only block software OFFBOARD admission during the
+        # measured estimator settling interval.
+        self.post_arm_settle_time = rospy.get_param(
+            "~post_arm_settle_time",
+            5.0
+        )
+
         # --------------------------------------------------
         # Internal state
         # --------------------------------------------------
@@ -94,6 +114,10 @@ class OffboardManager:
         self.rc_permission_time = None
 
         self.requested_mode = None
+
+        # Most recent DISARM -> ARM transition.
+        # None whenever the vehicle is disarmed.
+        self.arm_time = None
 
         # --------------------------------------------------
         # ROS subscribers
@@ -132,14 +156,14 @@ class OffboardManager:
         # --------------------------------------------------
 
         self.status_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/offboard_manager_status",
+            "/contest2/ego_uav_interface/offboard_manager_status",
             String,
             queue_size=1,
             latch=True
         )
 
         self.offboard_active_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/offboard_active",
+            "/contest2/ego_uav_interface/offboard_active",
             Bool,
             queue_size=1,
             latch=True
@@ -150,15 +174,21 @@ class OffboardManager:
         # --------------------------------------------------
 
         rospy.Service(
-            "/contest1/ego_uav_interface/request_offboard",
+            "/contest2/ego_uav_interface/request_offboard",
             Trigger,
             self.request_offboard_callback
         )
 
         rospy.Service(
-            "/contest1/ego_uav_interface/request_posctl",
+            "/contest2/ego_uav_interface/request_posctl",
             Trigger,
             self.request_posctl_callback
+        )
+
+        rospy.Service(
+            "/contest2/ego_uav_interface/request_land",
+            Trigger,
+            self.request_land_callback
         )
 
         # --------------------------------------------------
@@ -193,6 +223,11 @@ class OffboardManager:
         rospy.loginfo("--------------------------------------")
         rospy.loginfo(" OFFBOARD mode : %s", self.offboard_mode)
         rospy.loginfo(" Fallback mode : %s", self.fallback_mode)
+        rospy.loginfo(" LAND mode     : %s", self.land_mode)
+        rospy.loginfo(
+            " Post-ARM settle : %.2f s",
+            self.post_arm_settle_time
+        )
         rospy.loginfo("--------------------------------------")
         rospy.loginfo(" DOES NOT ARM THE VEHICLE")
         rospy.loginfo(" OFFBOARD requires explicit service")
@@ -204,8 +239,29 @@ class OffboardManager:
 
     def state_callback(self, msg):
 
+        now = rospy.Time.now()
+
+        was_armed = (
+            self.px4_state is not None
+            and self.px4_state.armed
+        )
+
         self.px4_state = msg
-        self.state_time = rospy.Time.now()
+        self.state_time = now
+
+        if msg.armed and not was_armed:
+
+            self.arm_time = now
+
+            rospy.logwarn(
+                "[MODE MANAGER] ARM detected. "
+                "POST_ARM_SETTLING for %.2f s.",
+                self.post_arm_settle_time
+            )
+
+        elif not msg.armed:
+
+            self.arm_time = None
 
     def health_callback(self, msg):
 
@@ -234,6 +290,38 @@ class OffboardManager:
         return (
             rospy.Time.now() - self.state_time
         ).to_sec() < self.state_timeout
+
+    def post_arm_settle_ok(self):
+
+        # Do not disturb existing DISARMED OFFBOARD behavior.
+        if self.px4_state is None or not self.px4_state.armed:
+            return True
+
+        if self.arm_time is None:
+            return False
+
+        return (
+            rospy.Time.now() - self.arm_time
+        ).to_sec() >= self.post_arm_settle_time
+
+
+    def post_arm_settle_remaining(self):
+
+        if self.px4_state is None or not self.px4_state.armed:
+            return 0.0
+
+        if self.arm_time is None:
+            return self.post_arm_settle_time
+
+        age = (
+            rospy.Time.now() - self.arm_time
+        ).to_sec()
+
+        return max(
+            0.0,
+            self.post_arm_settle_time - age
+        )
+
 
     def health_ok(self):
 
@@ -332,6 +420,22 @@ class OffboardManager:
                 message="Rejected: RC OFFBOARD permission is false"
             )
 
+        if (
+            self.px4_state.armed
+            and not self.post_arm_settle_ok()
+        ):
+
+            remaining = self.post_arm_settle_remaining()
+
+            return TriggerResponse(
+                success=False,
+                message=(
+                    "Rejected: POST_ARM_SETTLING "
+                    "%.2f s remaining"
+                    % remaining
+                )
+            )
+
         if not self.health_ok():
 
             return TriggerResponse(
@@ -418,6 +522,97 @@ class OffboardManager:
             success=False,
             message="PX4 rejected POSCTL request"
         )
+
+    # ======================================================
+    # User service: request native PX4 LAND
+    # ======================================================
+
+    def request_land_callback(self, req):
+
+        if not self.state_fresh():
+
+            return TriggerResponse(
+                success=False,
+                message="Rejected: PX4 state timeout"
+            )
+
+        if (
+            self.px4_state is None
+            or not self.px4_state.connected
+        ):
+
+            return TriggerResponse(
+                success=False,
+                message="Rejected: PX4 not connected"
+            )
+
+        if not self.px4_state.armed:
+
+            return TriggerResponse(
+                success=False,
+                message="Rejected: vehicle is DISARMED"
+            )
+
+        if self.px4_state.mode == self.land_mode:
+
+            return TriggerResponse(
+                success=True,
+                message="Already in AUTO.LAND"
+            )
+
+        # Native LAND handoff is intentionally accepted only
+        # from an active OFFBOARD session.
+        if self.px4_state.mode != self.offboard_mode:
+
+            return TriggerResponse(
+                success=False,
+                message=(
+                    "Rejected: LAND handoff requires OFFBOARD; "
+                    "mode=%s"
+                    % self.px4_state.mode
+                )
+            )
+
+        if not self.rc_permission_fresh():
+
+            return TriggerResponse(
+                success=False,
+                message=(
+                    "Rejected: RC autonomy permission "
+                    "unavailable/stale"
+                )
+            )
+
+        if not self.rc_offboard_allowed:
+
+            return TriggerResponse(
+                success=False,
+                message="Rejected: RC autonomy permission is false"
+            )
+
+        rospy.logwarn(
+            "Requesting PX4 native LAND mode: %s",
+            self.land_mode
+        )
+
+        success = self.set_mode(
+            self.land_mode
+        )
+
+        if success:
+
+            self.requested_mode = self.land_mode
+
+            return TriggerResponse(
+                success=True,
+                message="AUTO.LAND request sent"
+            )
+
+        return TriggerResponse(
+            success=False,
+            message="PX4 rejected AUTO.LAND request"
+        )
+
 
     # ======================================================
     # Main monitor
@@ -535,8 +730,28 @@ class OffboardManager:
 
                 status = "POSCTL_RC_BLOCKED"
 
+            elif (
+                self.px4_state.armed
+                and not self.post_arm_settle_ok()
+            ):
+
+                status = "POSCTL_POST_ARM_SETTLING"
+
+            elif (
+                self.px4_state.armed
+                and self.health_ok()
+                and self.stream_ok()
+            ):
+
+                # Current physical ARM session has completed
+                # the post-ARM observation period and all
+                # existing OFFBOARD health gates are healthy.
+                status = "POSCTL_ARMED_READY_FOR_OFFBOARD"
+
             elif self.health_ok() and self.stream_ok():
 
+                # Preserve the historical DISARMED status for
+                # ground-only OFFBOARD validation.
                 status = "POSCTL_READY_FOR_OFFBOARD"
 
             else:

@@ -16,7 +16,7 @@ from demo11_corridor import load_corridor
 ROOT = Path(__file__).resolve().parent
 MANIFEST = ROOT / 'DEMO11_SOURCE_MANIFEST.json'
 ROUTE = [
-    {'forward':3.5, 'left':0.25, 'mode':'EGO', 'yaw_deg':0.0},
+    {'forward':3.5, 'left':0.0, 'mode':'EGO', 'yaw_deg':0.0},
     {'forward':4.061, 'left':-0.439, 'mode':'EGO', 'yaw_deg':-135.0},
     {'forward':4.5, 'left':-1.5, 'mode':'EGO', 'yaw_deg':-180.0},
 ]
@@ -59,7 +59,7 @@ def static_check(quiet=False):
         c.check_center(0.011, -0.065)
         if (abs(c.f_start-1.0)>1e-9 or abs(c.f_guard_min-0.8)>1e-9 or abs(c.clearance-0.35)>1e-9 or abs(c.center_l_min+0.75)>1e-9 or abs(c.center_l_max-0.75)>1e-9):
             fail('R4I physical corridor does not begin at F=1m')
-        c.check_center(3.5, 0.25)
+        c.check_center(3.5, 0.0)
         c.check_center(4.5, -1.5)
         for script in ('run_demo11.sh','run_demo9.sh','start_demo9.sh','start_demo5.sh'):
             if 'r4_flight_gate.sh' not in (ROOT / script).read_text():

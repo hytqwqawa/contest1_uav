@@ -21,40 +21,40 @@ class TrajectoryMux:
         self.ego_time = None
 
         self.pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/trajectory_setpoint",
+            "/contest2/ego_uav_interface/trajectory_setpoint",
             PositionTarget,
             queue_size=10
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/trajectory_mux_status",
+            "/contest2/ego_uav_interface/trajectory_mux_status",
             String,
             queue_size=1,
             latch=True
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/point_setpoint",
+            "/contest2/ego_uav_interface/point_setpoint",
             PositionTarget,
             self.point_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/ego_setpoint",
+            "/contest2/ego_uav_interface/ego_setpoint",
             PositionTarget,
             self.ego_cb,
             queue_size=20
         )
 
         rospy.Service(
-            "/contest1/ego_uav_interface/use_point",
+            "/contest2/ego_uav_interface/use_point",
             Trigger,
             self.use_point
         )
 
         rospy.Service(
-            "/contest1/ego_uav_interface/use_ego",
+            "/contest2/ego_uav_interface/use_ego",
             Trigger,
             self.use_ego
         )

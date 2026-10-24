@@ -6,7 +6,7 @@
         output="screen">
 
     <param name="topic"
-           value="/contest1/vins_fusion/extrinsic"/>
+           value="/contest2/vins_fusion/extrinsic"/>
 
     <!-- D435 optical center relative to UAV body -->
     <!-- body frame: +x forward, +y left, +z up -->

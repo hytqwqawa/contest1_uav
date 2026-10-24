@@ -84,10 +84,10 @@ int main(int argc, char** argv) {
   node.param("obj_generator/interval", _interval, 100.0);
   node.param("obj_generator/input_type", _input_type, 1);
 
-  obj_pub = node.advertise<visualization_msgs::Marker>("/contest1/dynamic/obj", 10);
+  obj_pub = node.advertise<visualization_msgs::Marker>("/contest2/dynamic/obj", 10);
   for (int i = 0; i < obj_num; ++i) {
     ros::Publisher pose_pub =
-        node.advertise<geometry_msgs::PoseStamped>("/contest1/dynamic/pose_" + to_string(i), 10);
+        node.advertise<geometry_msgs::PoseStamped>("/contest2/dynamic/pose_" + to_string(i), 10);
     pose_pubs.push_back(pose_pub);
   }
 

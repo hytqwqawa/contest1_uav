@@ -101,7 +101,7 @@
          value="$(arg planning_horizon)"/>
 
     <arg name="use_distinctive_trajs"
-         value="false"/>
+         value="true"/>
 
 
     <!-- flight_type = 1:

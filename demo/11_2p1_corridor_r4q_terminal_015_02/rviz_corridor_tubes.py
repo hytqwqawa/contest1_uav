@@ -132,7 +132,7 @@ class CorridorView:
             f,l,h = float(wp['forward']),float(wp['left']),height
             color = (1.,.45,.12,1.) if i==0 else (.97,.34,.54,1.)
             self.sphere(out,session,200+i,f,l,h,color)
-            name = 'P1 = P1B' if i==0 else 'P%d'%(i+1)
+            name = 'P1' if i==0 else 'P%d'%(i+1)
             self.text(out,session,210+i,'labels',f,l,h+.25,
                       '%s F%+.3f L%+.3f'%(name,f,l),color,.16)
         self.text(out,session,250,'labels',1.0,-1.15,1.64,

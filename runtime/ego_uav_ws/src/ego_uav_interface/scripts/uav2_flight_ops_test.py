@@ -32,6 +32,16 @@ class FlightOpsTest:
         self.point_status = None
         self.mux_status = None
 
+        # POST_ARM_REQUALIFY_CLIENT_V1
+        #
+        # offboard_manager is the authoritative OFFBOARD gate.
+        # This client only waits until that gate reports that the
+        # current ARM session has been re-qualified.
+        self.offboard_manager_status = None
+        self.offboard_manager_status_time = None
+
+        # POST_ARM_REQUALIFY_CLIENT_V2
+
         # UAV2 touchdown state.
         self.extended_state = None
         self.range_value = None
@@ -39,41 +49,41 @@ class FlightOpsTest:
 
         # TFMini normally reads about 0.04-0.06 m on the floor.
         self.touchdown_range_threshold = rospy.get_param(
-            "/contest1/uav2_touchdown/range_threshold",
+            "/contest2/uav2_touchdown/range_threshold",
             0.08
         )
 
         self.touchdown_range_timeout = rospy.get_param(
-            "/contest1/uav2_touchdown/range_timeout",
+            "/contest2/uav2_touchdown/range_timeout",
             0.30
         )
 
         self.touchdown_stable_time = rospy.get_param(
-            "/contest1/uav2_touchdown/stable_time",
+            "/contest2/uav2_touchdown/stable_time",
             0.10
         )
 
         # Never allow the touchdown gate immediately after takeoff.
         self.touchdown_min_drop = rospy.get_param(
-            "/contest1/uav2_touchdown/min_drop",
+            "/contest2/uav2_touchdown/min_drop",
             0.30
         )
 
         # Actual PX4 local-Z before takeoff.
         self.ground_z_reference = rospy.get_param(
-            "/contest1/uav2_touchdown/ground_z_reference",
+            "/contest2/uav2_touchdown/ground_z_reference",
             1.0e9
         )
 
         # Physical-contact fallback.
         # TFMini alone is never sufficient to disarm.
         self.touchdown_ground_margin = rospy.get_param(
-            "/contest1/uav2_touchdown/ground_margin",
+            "/contest2/uav2_touchdown/ground_margin",
             0.03
         )
 
         self.touchdown_vz_max = rospy.get_param(
-            "/contest1/uav2_touchdown/vz_max",
+            "/contest2/uav2_touchdown/vz_max",
             0.10
         )
 
@@ -82,75 +92,82 @@ class FlightOpsTest:
         # TFMini reads about 0.04-0.06 m when physically landed,
         # so 0.10 m leaves only a few centimeters for AUTO.LAND.
         self.autoland_handoff_range = rospy.get_param(
-            "/contest1/uav2_touchdown/autoland_handoff_range",
+            "/contest2/uav2_touchdown/autoland_handoff_range",
             0.10
         )
 
         self.autoland_timeout = rospy.get_param(
-            "/contest1/uav2_touchdown/autoland_timeout",
+            "/contest2/uav2_touchdown/autoland_timeout",
             6.0
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/state",
+            "/contest2/mavros/state",
             State,
             self.state_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/extended_state",
+            "/contest2/mavros/extended_state",
             ExtendedState,
             self.extended_state_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/distance_sensor/hrlv_ez4_pub",
+            "/contest2/mavros/distance_sensor/hrlv_ez4_pub",
             Range,
             self.range_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/local_position/odom",
+            "/contest2/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/flight_healthy",
+            "/contest2/ego_uav_interface/flight_healthy",
             Bool,
             self.health_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/offboard_stream_ready",
+            "/contest2/ego_uav_interface/offboard_stream_ready",
             Bool,
             self.stream_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/rc_mission_allowed",
+            "/contest2/ego_uav_interface/rc_mission_allowed",
             Bool,
             self.mission_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/point_traj_status",
+            "/contest2/ego_uav_interface/point_traj_status",
             String,
             self.point_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/trajectory_mux_status",
+            "/contest2/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
+            queue_size=10
+        )
+
+        rospy.Subscriber(
+            "/contest2/ego_uav_interface/offboard_manager_status",
+            String,
+            self.offboard_manager_status_cb,
             queue_size=10
         )
 
@@ -168,7 +185,7 @@ class FlightOpsTest:
 
         for name in names:
 
-            full = "/contest1/ego_uav_interface/" + name
+            full = "/contest2/ego_uav_interface/" + name
 
             rospy.wait_for_service(
                 full,
@@ -218,6 +235,11 @@ class FlightOpsTest:
         self.mux_status = msg.data
 
 
+    def offboard_manager_status_cb(self, msg):
+        self.offboard_manager_status = msg.data
+        self.offboard_manager_status_time = rospy.Time.now()
+
+
     def z(self):
 
         if self.odom is None:
@@ -250,6 +272,7 @@ class FlightOpsTest:
                 and self.mission is not None
                 and self.point_status is not None
                 and self.mux_status is not None
+                and self.offboard_manager_status is not None
                 and self.extended_state is not None
                 and self.range_value is not None
             ):
@@ -279,6 +302,100 @@ class FlightOpsTest:
                 return False
 
             rospy.sleep(0.02)
+
+        return False
+
+
+    def wait_post_arm_requalified(self, timeout=10.0):
+
+        print()
+        print(
+            CYAN +
+            "[ WAIT ] POST-ARM estimator requalification..."
+            + RESET
+        )
+
+        deadline = time.time() + timeout
+        last_status = None
+
+        # POST_ARM_REQUALIFY_CLIENT_V3
+        #
+        # A newly launched client may initially receive a latched
+        # pre-ARM status. Accept only a manager status received after
+        # this wait began, and only the explicit ARMED-ready state.
+        #
+        # This also permits a client that starts after the 5-s
+        # settling interval has already completed.
+        wait_start = rospy.Time.now()
+
+        while not rospy.is_shutdown():
+
+            if self.state is None or not self.state.armed:
+                print(
+                    RED +
+                    "[ABORT] vehicle disarmed during "
+                    "POST-ARM requalification"
+                    + RESET
+                )
+                return False
+
+            if self.state.mode != "POSCTL":
+                print(
+                    RED +
+                    "[ABORT] expected POSCTL during "
+                    "POST-ARM requalification, mode=%s"
+                    % self.state.mode
+                    + RESET
+                )
+                return False
+
+            status = self.offboard_manager_status
+
+            status_received_after_wait_start = (
+                self.offboard_manager_status_time is not None
+                and
+                self.offboard_manager_status_time >= wait_start
+            )
+
+            if status != last_status:
+                print(
+                    "        manager=%s  health=%s  stream=%s"
+                    %
+                    (
+                        status,
+                        self.health,
+                        self.stream
+                    )
+                )
+                last_status = status
+
+            if (
+                status == "POSCTL_ARMED_READY_FOR_OFFBOARD"
+                and status_received_after_wait_start
+            ):
+                print(
+                    GREEN +
+                    "[ OK ] POST-ARM requalification complete"
+                    + RESET
+                )
+                return True
+
+            if time.time() > deadline:
+                print(
+                    RED +
+                    "[ABORT] POST-ARM requalification timeout; "
+                    "manager=%s health=%s stream=%s"
+                    %
+                    (
+                        status,
+                        self.health,
+                        self.stream
+                    )
+                    + RESET
+                )
+                return False
+
+            rospy.sleep(0.05)
 
         return False
 
@@ -476,15 +593,11 @@ class FlightOpsTest:
 
             return 1
 
-        if not self.health:
-
-            print(
-                RED +
-                "[ABORT] flight_healthy is FALSE"
-                + RESET
-            )
-
-            return 1
+        # Do not make an instantaneous health decision here.
+        # ARM can temporarily make flight_healthy False.
+        # wait_post_arm_requalified() requires the central
+        # offboard_manager to observe the ARM session and restore
+        # full OFFBOARD eligibility before this client proceeds.
 
         if not self.stream:
 
@@ -518,6 +631,9 @@ class FlightOpsTest:
                 + RESET
             )
 
+            return 1
+
+        if not self.wait_post_arm_requalified():
             return 1
 
         if not self.prepare_point_control():

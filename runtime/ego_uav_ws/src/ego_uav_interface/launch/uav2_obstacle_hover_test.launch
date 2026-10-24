@@ -6,7 +6,7 @@
 
   <node pkg="ego_uav_interface" type="point_traj_node.py" name="point_traj_node" output="log">
 
-    <param name="output_topic" value="/contest1/ego_uav_interface/point_setpoint" />
+    <param name="output_topic" value="/contest2/ego_uav_interface/point_setpoint" />
 
     
     <param name="takeoff_height" value="0.80" />
@@ -36,7 +36,7 @@
 
     <param name="range_timeout" value="0.30" />
 
-  <remap from="/contest1/move_base_simple/goal" to="/contest1/ego_uav_interface/point_goal" /></node>
+  <remap from="/contest2/move_base_simple/goal" to="/contest2/ego_uav_interface/point_goal" /></node>
 
 
   
@@ -50,19 +50,19 @@
   
   
 
-  <param name="/contest1/uav2_touchdown/range_threshold" value="0.08" />
+  <param name="/contest2/uav2_touchdown/range_threshold" value="0.08" />
 
-  <param name="/contest1/uav2_touchdown/range_timeout" value="0.30" />
+  <param name="/contest2/uav2_touchdown/range_timeout" value="0.30" />
 
-  <param name="/contest1/uav2_touchdown/stable_time" value="0.20" />
+  <param name="/contest2/uav2_touchdown/stable_time" value="0.20" />
 
-  <param name="/contest1/uav2_touchdown/min_drop" value="0.30" />
+  <param name="/contest2/uav2_touchdown/min_drop" value="0.30" />
 
 
   
-  <param name="/contest1/uav2_touchdown/autoland_handoff_range" value="0.10" />
+  <param name="/contest2/uav2_touchdown/autoland_handoff_range" value="0.10" />
 
-  <param name="/contest1/uav2_touchdown/autoland_timeout" value="6.0" />
+  <param name="/contest2/uav2_touchdown/autoland_timeout" value="6.0" />
 
 
   

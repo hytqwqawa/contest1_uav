@@ -57,69 +57,69 @@ class EgoSingleGoalDemo:
         self.ego_abort = None
 
         rospy.Subscriber(
-            "/contest1/mavros/local_position/odom",
+            "/contest2/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=30
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/state",
+            "/contest2/mavros/state",
             State,
             self.state_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/flight_healthy",
+            "/contest2/ego_uav_interface/flight_healthy",
             Bool,
             self.health_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/offboard_stream_ready",
+            "/contest2/ego_uav_interface/offboard_stream_ready",
             Bool,
             self.stream_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/rc_mission_allowed",
+            "/contest2/ego_uav_interface/rc_mission_allowed",
             Bool,
             self.mission_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/point_traj_status",
+            "/contest2/ego_uav_interface/point_traj_status",
             String,
             self.point_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/trajectory_mux_status",
+            "/contest2/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/rviz_goal_status",
+            "/contest2/ego_uav_interface/rviz_goal_status",
             String,
             self.rviz_status_cb,
             queue_size=30
         )
 
         self.goal_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/rviz_goal",
+            "/contest2/ego_uav_interface/rviz_goal",
             PoseStamped,
             queue_size=1
         )
 
         self.yaw_mode_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/yaw_mode",
+            "/contest2/ego_uav_interface/yaw_mode",
             String,
             queue_size=1,
             latch=True
@@ -189,9 +189,9 @@ class EgoSingleGoalDemo:
     def safe_hold(self):
 
         for service in [
-            "/contest1/ego_uav_interface/disable_trajectory",
-            "/contest1/ego_uav_interface/abort_trajectory",
-            "/contest1/ego_uav_interface/use_point",
+            "/contest2/ego_uav_interface/disable_trajectory",
+            "/contest2/ego_uav_interface/abort_trajectory",
+            "/contest2/ego_uav_interface/use_point",
         ]:
 
             try:
@@ -313,7 +313,7 @@ class EgoSingleGoalDemo:
     def run_flight_ops(self, command):
 
         script = os.path.expanduser(
-            "~/contest1_uav/runtime/"
+            "~/contest2_uav/runtime/"
             "ego_uav_ws/src/ego_uav_interface/scripts/"
             "uav2_flight_ops_test.py"
         )
@@ -610,7 +610,7 @@ class EgoSingleGoalDemo:
         ground_z = p.z
 
         rospy.set_param(
-            "/contest1/uav2_touchdown/ground_z_reference",
+            "/contest2/uav2_touchdown/ground_z_reference",
             ground_z
         )
 

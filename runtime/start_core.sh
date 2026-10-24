@@ -2,7 +2,7 @@
 
 set -u
 
-ROOT="$HOME/contest1_uav"
+ROOT="$HOME/contest2_uav"
 RUNTIME="$ROOT/runtime"
 COMMON="$RUNTIME/common"
 
@@ -12,8 +12,8 @@ DASHBOARD="$COMMON/scripts/uav2_system_ready_node.py"
 LOG_ROOT="$ROOT/data/logs/core"
 ROS_LOG_ROOT="$ROOT/data/logs/ros"
 
-export ROS_MASTER_URI=http://192.168.8.101:11311
-export ROS_IP=192.168.8.101
+export ROS_MASTER_URI=http://192.168.8.102:11311
+export ROS_IP=192.168.8.102
 
 mkdir -p "$LOG_ROOT"
 mkdir -p "$ROS_LOG_ROOT"
@@ -39,7 +39,7 @@ source "$RUNTIME/ego_uav_ws/devel/setup.bash" --extend
 
 echo
 echo "============================================================"
-echo "              CONTEST1 UAV CORE BRINGUP"
+echo "              CONTEST2 UAV CORE BRINGUP"
 echo "============================================================"
 echo
 echo "ROS_MASTER_URI : $ROS_MASTER_URI"
@@ -92,7 +92,7 @@ ln -sfn "$CORE_LOG" \
     "$LOG_ROOT/core_latest.log"
 
 echo
-echo "[START] contest1 UAV core nodes"
+echo "[START] contest2 UAV core nodes"
 echo "Log: $CORE_LOG"
 echo
 
@@ -106,14 +106,14 @@ cleanup()
 {
     echo
     echo
-    echo "Stopping contest1 UAV core stack..."
+    echo "Stopping contest2 UAV core stack..."
 
     if kill -0 "$CORE_PID" 2>/dev/null; then
         kill -INT "$CORE_PID" 2>/dev/null || true
         wait "$CORE_PID" 2>/dev/null || true
     fi
 
-    echo "contest1 UAV core stopped."
+    echo "contest2 UAV core stopped."
 }
 
 
@@ -136,4 +136,4 @@ fi
 # Foreground dashboard
 # ==========================================================
 
-ROS_NAMESPACE=/contest1 python3 -u "$DASHBOARD"
+ROS_NAMESPACE=/contest2 python3 -u "$DASHBOARD"

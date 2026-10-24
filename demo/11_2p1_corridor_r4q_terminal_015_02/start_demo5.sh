@@ -29,13 +29,13 @@ python3 -B - "$DBG/demo5_waypoints.yaml" <<'PYV4THREE' || exit 96
 import sys, yaml
 p = yaml.safe_load(open(sys.argv[1]))
 expected = [
-  {'forward':3.5,'left':0.25,'mode':'EGO','yaw_deg':0.0},
+  {'forward':3.5,'left':0.0,'mode':'EGO','yaw_deg':0.0},
   {'forward':4.061,'left':-0.439,'mode':'EGO','yaw_deg':-135.0},
   {'forward':4.5,'left':-1.5,'mode':'EGO','yaw_deg':-180.0},
 ]
 if p.get('waypoints') != expected or p.get('flight_height') != 0.8:
     raise SystemExit('[STOP] Not reviewed Demo11 three-EGO-point arc-midpoint plan')
-print('[V4 VERIFIED] P1=P1B F+3.5 L+0.25; 3 EGO legs; final POSCTL pilot landing')
+print('[V4 VERIFIED] P1 F+3.5 L+0.00; 3 EGO legs; final POSCTL pilot landing')
 PYV4THREE
 
 # Refuse bypass of Demo11-specific MUX check when this wrapper is called directly.
@@ -182,7 +182,7 @@ if ! kill -0 "$CORRIDOR_VIZ_PID" 2>/dev/null; then
     cat "$DBG/rviz_corridor_tubes.log"
     exit 1
 fi
-echo '[RVIZ] yellow=straight walls; green=center guard; cyan=round reference tube; orange=P1B'
+echo '[RVIZ] yellow=straight walls; green=center guard; cyan=round reference tube; orange=P1'
 echo '[RVIZ] the round pipe is an illustrative arc, NOT a physical collision fence'
 
 echo "[2/4] Starting preset RViz..."
