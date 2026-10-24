@@ -361,16 +361,23 @@ class EgoTrajectoryBridge:
                 )
                 return
 
-            # FIXED_ODOM_XYZ_V1
-            #
-            # In-place ALIGN must hold the aircraft's ACTUAL
-            # position at FIXED entry, not the EGO t=0
-            # PositionCommand, which may have a nonzero first gap.
-            self._fixed_hold_xyz = (
-                self.current_position[0],
-                self.current_position[1],
-                self.current_position[2]
-            )
+	    try:
+		  z_ref = float(rospy.get_param(
+		      "/contest2/ego_uav_interface/terminal_yaw_hold_z"
+		  ))
+	    except (KeyError, TypeError, ValueError):
+		  rospy.logerr("[FIXED] target height unavailable")
+		  return
+
+	    if not math.isfinite(z_ref):
+		  rospy.logerr("[FIXED] target height invalid")
+		  return
+
+	    self._fixed_hold_xyz = (
+		  self.current_position[0],
+		  self.current_position[1],
+		  z_ref
+	    )
 
             rospy.logwarn(
                 "[EGO BRIDGE] FIXED ODOM XYZ captured: "

@@ -4,7 +4,7 @@ set -eo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$HOME/contest1_uav"
 source "$ROOT/runtime/env.sh"
-export DEMO10_QR_AFTER_WAYPOINT=1
+export DEMO10_QR_AFTER_WAYPOINT=3
 export ROS_MASTER_URI=http://192.168.8.101:11311
 export ROS_IP=192.168.8.101
 export ROS_NAMESPACE=/contest1

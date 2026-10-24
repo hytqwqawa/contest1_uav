@@ -2211,6 +2211,10 @@ class TangentPreview:
             data="P%d/%d EGO_TERMINAL_YAW %.1fdeg_WORLD" % (
                 self.active_wp_num, self.wp_total, world_yaw_deg)))
         rospy.logwarn("[DEMO8] terminal yaw target WORLD=%+.1f deg", world_yaw_deg)
+        rospy.set_param(
+            "/contest2/ego_uav_interface/terminal_yaw_hold_z",
+            float(gz)
+	)
         self.yaw_target_pub.publish(Float64(data=world_yaw_deg))
         rospy.sleep(0.20)  # target callback precedes FIXED mode entry
         self.yaw_mode_pub.publish(String(data="FIXED"))
