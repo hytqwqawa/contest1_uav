@@ -111,77 +111,77 @@ class SystemReadyNode:
         # ---------------------------------------------------
 
         rospy.Subscriber(
-            "/contest2/mavros/state",
+            "/contest1/mavros/state",
             State,
             self.state_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/local_position/odom",
+            "/contest1/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/battery",
+            "/contest1/mavros/battery",
             BatteryState,
             self.battery_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/rc/in",
+            "/contest1/mavros/rc/in",
             RCIn,
             self.rc_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/preflight_ready",
+            "/contest1/ego_uav_interface/preflight_ready",
             Bool,
             self.preflight_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/flight_healthy",
+            "/contest1/ego_uav_interface/flight_healthy",
             Bool,
             self.health_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/offboard_stream_ready",
+            "/contest1/ego_uav_interface/offboard_stream_ready",
             Bool,
             self.stream_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/rc_supervisor_status",
+            "/contest1/ego_uav_interface/rc_supervisor_status",
             String,
             self.rc_status_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/offboard_manager_status",
+            "/contest1/ego_uav_interface/offboard_manager_status",
             String,
             self.offboard_status_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/trajectory_interface_status",
+            "/contest1/ego_uav_interface/trajectory_interface_status",
             String,
             self.traj_if_status_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/point_traj_status",
+            "/contest1/ego_uav_interface/point_traj_status",
             String,
             self.point_status_cb,
             queue_size=10
@@ -192,14 +192,14 @@ class SystemReadyNode:
         # ---------------------------------------------------
 
         self.ready_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/system_ready",
+            "/contest1/ego_uav_interface/system_ready",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/system_ready_status",
+            "/contest1/ego_uav_interface/system_ready_status",
             String,
             queue_size=1,
             latch=True
@@ -207,7 +207,7 @@ class SystemReadyNode:
 
         # Optional. Failure to make sound NEVER blocks READY.
         self.tune_pub = rospy.Publisher(
-            "/contest2/mavros/play_tune",
+            "/contest1/mavros/play_tune",
             PlayTuneV2,
             queue_size=1
         )

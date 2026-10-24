@@ -29,12 +29,12 @@ public:
         pnh_.param<std::string>(
             "mocap_pose_topic",
             mocap_pose_topic_,
-            "/contest2/ego_uav_interface/external_pose_ref");
+            "/contest1/ego_uav_interface/external_pose_ref");
 
         pnh_.param<std::string>(
             "px4_odom_topic",
             px4_odom_topic_,
-            "/contest2/mavros/local_position/odom");
+            "/contest1/mavros/local_position/odom");
 
         pnh_.param(
             "position_error_max",
@@ -106,7 +106,7 @@ public:
         pnh_.param<std::string>(
             "range_topic",
             range_topic_,
-            "/contest2/mavros/distance_sensor/hrlv_ez4_pub");
+            "/contest1/mavros/distance_sensor/hrlv_ez4_pub");
 
         pnh_.param(
             "near_ground_range",
@@ -143,18 +143,18 @@ public:
 
         ready_pub_ =
             nh_.advertise<std_msgs::Bool>(
-                "/contest2/ego_uav_interface/ready",
+                "/contest1/ego_uav_interface/ready",
                 1,
                 true);
 
         pos_error_pub_ =
             nh_.advertise<geometry_msgs::Vector3Stamped>(
-                "/contest2/ego_uav_interface/position_error",
+                "/contest1/ego_uav_interface/position_error",
                 10);
 
         yaw_error_pub_ =
             nh_.advertise<std_msgs::Float64>(
-                "/contest2/ego_uav_interface/yaw_error_deg",
+                "/contest1/ego_uav_interface/yaw_error_deg",
                 10);
 
         timer_ = nh_.createTimer(

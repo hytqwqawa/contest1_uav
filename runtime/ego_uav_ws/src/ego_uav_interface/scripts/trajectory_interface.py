@@ -17,27 +17,27 @@ class TrajectoryInterface:
 
         self.odom_topic = rospy.get_param(
             "~odom_topic",
-            "/contest2/mavros/local_position/odom"
+            "/contest1/mavros/local_position/odom"
         )
 
         self.health_topic = rospy.get_param(
             "~health_topic",
-            "/contest2/ego_uav_interface/flight_healthy"
+            "/contest1/ego_uav_interface/flight_healthy"
         )
 
         self.command_topic = rospy.get_param(
             "~command_topic",
-            "/contest2/ego_uav_interface/trajectory_setpoint"
+            "/contest1/ego_uav_interface/trajectory_setpoint"
         )
 
         self.mission_permission_topic = rospy.get_param(
             "~mission_permission_topic",
-            "/contest2/ego_uav_interface/rc_mission_allowed"
+            "/contest1/ego_uav_interface/rc_mission_allowed"
         )
 
         self.output_topic = rospy.get_param(
             "~output_topic",
-            "/contest2/mavros/setpoint_raw/local"
+            "/contest1/mavros/setpoint_raw/local"
         )
 
         self.publish_rate = rospy.get_param(
@@ -139,41 +139,41 @@ class TrajectoryInterface:
         )
 
         self.ready_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/offboard_stream_ready",
+            "/contest1/ego_uav_interface/offboard_stream_ready",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/trajectory_interface_status",
+            "/contest1/ego_uav_interface/trajectory_interface_status",
             String,
             queue_size=1,
             latch=True
         )
 
         self.geofence_ok_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/geofence_ok",
+            "/contest1/ego_uav_interface/geofence_ok",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.geofence_status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/geofence_status",
+            "/contest1/ego_uav_interface/geofence_status",
             String,
             queue_size=1,
             latch=True
         )
 
         self.enable_srv = rospy.Service(
-            "/contest2/ego_uav_interface/enable_trajectory",
+            "/contest1/ego_uav_interface/enable_trajectory",
             Trigger,
             self.enable_trajectory
         )
 
         self.disable_srv = rospy.Service(
-            "/contest2/ego_uav_interface/disable_trajectory",
+            "/contest1/ego_uav_interface/disable_trajectory",
             Trigger,
             self.disable_trajectory
         )

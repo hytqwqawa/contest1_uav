@@ -21,7 +21,7 @@ Visualization Manager:
   - Class: rviz/PointCloud2
     Enabled: true
     Name: Occupancy
-    Topic: /contest2/drone_0_ego_planner_node/grid_map/occupancy
+    Topic: /contest1/drone_0_ego_planner_node/grid_map/occupancy
     Queue Size: 10
     Style: Points
     Size (Pixels): 3
@@ -34,7 +34,7 @@ Visualization Manager:
   - Class: rviz/PointCloud2
     Enabled: true
     Name: Occupancy Inflated
-    Topic: /contest2/drone_0_ego_planner_node/grid_map/occupancy_inflate
+    Topic: /contest1/drone_0_ego_planner_node/grid_map/occupancy_inflate
     Queue Size: 10
     Style: Points
     Size (Pixels): 5
@@ -47,7 +47,7 @@ Visualization Manager:
   - Class: rviz/Path
     Enabled: true
     Name: EGO Planned Path
-    Topic: /contest2/uav2_static/ego_path
+    Topic: /contest1/uav2_static/ego_path
     Line Style: Lines
     Line Width: 0.04
     Color: 0; 255; 255
@@ -56,16 +56,16 @@ Visualization Manager:
   - Class: rviz/Marker
     Enabled: true
     Name: UAV Heading
-    Marker Topic: /contest2/uav2_static/body_heading
+    Marker Topic: /contest1/uav2_static/body_heading
     Queue Size: 10
   - Class: rviz/Marker
     Enabled: true
     Name: Goal
-    Marker Topic: /contest2/uav2_static/goal_marker
+    Marker Topic: /contest1/uav2_static/goal_marker
     Queue Size: 10
   - Class: rviz/Marker
     Enabled: true
-    Marker Topic: /contest2/uav2/replan_traj
+    Marker Topic: /contest1/uav2/replan_traj
     Name: EGO Planned Trajectory
     Namespaces:
       {}
@@ -73,7 +73,7 @@ Visualization Manager:
     Value: true
   - Class: rviz/Marker
     Enabled: true
-    Marker Topic: /contest2/uav2/executed_traj
+    Marker Topic: /contest1/uav2/executed_traj
     Name: Realtime Executed Trajectory
     Namespaces:
       {}
@@ -81,7 +81,7 @@ Visualization Manager:
     Value: true
   - Class: rviz/Marker
     Enabled: true
-    Marker Topic: /contest2/uav2/actual_traj
+    Marker Topic: /contest1/uav2/actual_traj
     Name: Actual UAV Trajectory
     Namespaces:
       {}
@@ -89,14 +89,14 @@ Visualization Manager:
     Value: true
   - Class: rviz/MarkerArray
     Enabled: true
-    Marker Topic: /contest2/yaw_tangent_demo/demo_frame_markers
+    Marker Topic: /contest1/yaw_tangent_demo/demo_frame_markers
     Name: Demo Frame Fence
     Namespaces: {}
     Queue Size: 100
     Value: true
   - Class: rviz/MarkerArray
     Enabled: true
-    Marker Topic: /contest2/yaw_tangent_demo/tangent_markers
+    Marker Topic: /contest1/yaw_tangent_demo/tangent_markers
     Name: Tangent Yaw Arrows
     Namespaces: {}
     Queue Size: 100

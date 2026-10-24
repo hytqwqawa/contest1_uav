@@ -74,9 +74,9 @@
   
 
   <group ns="$(arg camera)">
-    <remap from="/tf" to="/contest2/tf"/>
-    <remap from="/tf_static" to="/contest2/tf_static"/>
-    <remap from="/diagnostics" to="/contest2/diagnostics"/>
+    <remap from="/tf" to="/contest1/tf"/>
+    <remap from="/tf_static" to="/contest1/tf_static"/>
+    <remap from="/diagnostics" to="/contest1/diagnostics"/>
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
       <arg name="tf_prefix"                value="$(arg tf_prefix)"/>
       <arg name="external_manager"         value="$(arg external_manager)"/>

@@ -73,14 +73,14 @@ class RCSupervisor:
         # ====================================================
 
         rospy.Subscriber(
-            "/contest2/mavros/rc/in",
+            "/contest1/mavros/rc/in",
             RCIn,
             self.rc_callback,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/state",
+            "/contest1/mavros/state",
             State,
             self.state_callback,
             queue_size=20
@@ -91,28 +91,28 @@ class RCSupervisor:
         # ====================================================
 
         self.offboard_allowed_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/rc_offboard_allowed",
+            "/contest1/ego_uav_interface/rc_offboard_allowed",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.mission_allowed_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/rc_mission_allowed",
+            "/contest1/ego_uav_interface/rc_mission_allowed",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.manual_latched_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/rc_manual_latched",
+            "/contest1/ego_uav_interface/rc_manual_latched",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/rc_supervisor_status",
+            "/contest1/ego_uav_interface/rc_supervisor_status",
             String,
             queue_size=1,
             latch=True
@@ -126,17 +126,17 @@ class RCSupervisor:
         # ====================================================
 
         self.request_posctl_srv = rospy.ServiceProxy(
-            "/contest2/ego_uav_interface/request_posctl",
+            "/contest1/ego_uav_interface/request_posctl",
             Trigger
         )
 
         self.disable_trajectory_srv = rospy.ServiceProxy(
-            "/contest2/ego_uav_interface/disable_trajectory",
+            "/contest1/ego_uav_interface/disable_trajectory",
             Trigger
         )
 
         self.abort_trajectory_srv = rospy.ServiceProxy(
-            "/contest2/ego_uav_interface/abort_trajectory",
+            "/contest1/ego_uav_interface/abort_trajectory",
             Trigger
         )
 

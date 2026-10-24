@@ -20,27 +20,27 @@ class PointTrajectoryNode:
 
         self.odom_topic = rospy.get_param(
             "~odom_topic",
-            "/contest2/mavros/local_position/odom"
+            "/contest1/mavros/local_position/odom"
         )
 
         self.output_topic = rospy.get_param(
             "~output_topic",
-            "/contest2/ego_uav_interface/trajectory_setpoint"
+            "/contest1/ego_uav_interface/trajectory_setpoint"
         )
 
         self.mission_permission_topic = rospy.get_param(
             "~mission_permission_topic",
-            "/contest2/ego_uav_interface/rc_mission_allowed"
+            "/contest1/ego_uav_interface/rc_mission_allowed"
         )
 
         self.state_topic = rospy.get_param(
             "~state_topic",
-            "/contest2/mavros/state"
+            "/contest1/mavros/state"
         )
 
         self.enable_trajectory_service = rospy.get_param(
             "~enable_trajectory_service",
-            "/contest2/ego_uav_interface/enable_trajectory"
+            "/contest1/ego_uav_interface/enable_trajectory"
         )
 
         self.offboard_mode = rospy.get_param(
@@ -87,7 +87,7 @@ class PointTrajectoryNode:
         # UAV2 terminal descent through ground-effect region.
         self.range_topic = rospy.get_param(
             "~range_topic",
-            "/contest2/mavros/distance_sensor/hrlv_ez4_pub"
+            "/contest1/mavros/distance_sensor/hrlv_ez4_pub"
         )
 
         # Below this measured range, stop decelerating the
@@ -206,7 +206,7 @@ class PointTrajectoryNode:
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/flight_healthy",
+            "/contest1/ego_uav_interface/flight_healthy",
             Bool,
             self.health_callback,
             queue_size=20
@@ -235,7 +235,7 @@ class PointTrajectoryNode:
 
         # RViz 2D Nav Goal
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/point_goal",
+            "/contest1/ego_uav_interface/point_goal",
             PoseStamped,
             self.goal_callback,
             queue_size=5
@@ -243,7 +243,7 @@ class PointTrajectoryNode:
 
         # Terminal/manual goal
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/goal",
+            "/contest1/ego_uav_interface/goal",
             PoseStamped,
             self.goal_callback,
             queue_size=5
@@ -256,26 +256,26 @@ class PointTrajectoryNode:
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/point_traj_status",
+            "/contest1/ego_uav_interface/point_traj_status",
             String,
             queue_size=1,
             latch=True
         )
 
         rospy.Service(
-            "/contest2/ego_uav_interface/start_takeoff",
+            "/contest1/ego_uav_interface/start_takeoff",
             Trigger,
             self.start_takeoff
         )
 
         rospy.Service(
-            "/contest2/ego_uav_interface/start_land",
+            "/contest1/ego_uav_interface/start_land",
             Trigger,
             self.start_land
         )
 
         rospy.Service(
-            "/contest2/ego_uav_interface/abort_trajectory",
+            "/contest1/ego_uav_interface/abort_trajectory",
             Trigger,
             self.abort_trajectory
         )
@@ -298,10 +298,10 @@ class PointTrajectoryNode:
         rospy.loginfo(" Max acc        : %.2f m/s^2", self.max_acc)
         rospy.loginfo("")
         rospy.loginfo(" RViz goal:")
-        rospy.loginfo("   /contest2/move_base_simple/goal")
+        rospy.loginfo("   /contest1/move_base_simple/goal")
         rospy.loginfo("")
         rospy.loginfo(" Terminal goal:")
-        rospy.loginfo("   /contest2/ego_uav_interface/goal")
+        rospy.loginfo("   /contest1/ego_uav_interface/goal")
         rospy.loginfo("")
         rospy.loginfo(" Mission requires fresh RC mission permission")
         rospy.loginfo(" Mission requires ARMED + OFFBOARD")

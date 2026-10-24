@@ -26,7 +26,7 @@ class DemoFrameGuardV2:
 
         self.odom_topic = rospy.get_param(
             "~odom_topic",
-            "/contest2/mavros/local_position/odom"
+            "/contest1/mavros/local_position/odom"
         )
 
         self.frame_yaml = Path(
@@ -125,13 +125,13 @@ class DemoFrameGuardV2:
         print()
 
         state = rospy.wait_for_message(
-            "/contest2/mavros/state",
+            "/contest1/mavros/state",
             State,
             timeout=5.0
         )
 
         mission = rospy.wait_for_message(
-            "/contest2/ego_uav_interface/rc_mission_allowed",
+            "/contest1/ego_uav_interface/rc_mission_allowed",
             Bool,
             timeout=5.0
         )
@@ -152,28 +152,28 @@ class DemoFrameGuardV2:
         # ============================================================
 
         self.safe_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/demo_frame_safe",
+            "/contest1/ego_uav_interface/demo_frame_safe",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/demo_frame_guard_status",
+            "/contest1/ego_uav_interface/demo_frame_guard_status",
             String,
             queue_size=1,
             latch=True
         )
 
         self.ready_pub = rospy.Publisher(
-            "/contest2/yaw_tangent_demo/session_ready",
+            "/contest1/yaw_tangent_demo/session_ready",
             Bool,
             queue_size=1,
             latch=True
         )
 
         self.marker_pub = rospy.Publisher(
-            "/contest2/yaw_tangent_demo/demo_frame_markers",
+            "/contest1/yaw_tangent_demo/demo_frame_markers",
             MarkerArray,
             queue_size=1,
             latch=True
@@ -181,13 +181,13 @@ class DemoFrameGuardV2:
 
         # Reuse the topics already present in the proven RViz config.
         self.heading_pub = rospy.Publisher(
-            "/contest2/uav2_static/body_heading",
+            "/contest1/uav2_static/body_heading",
             Marker,
             queue_size=1
         )
 
         self.goal_pub = rospy.Publisher(
-            "/contest2/uav2_static/goal_marker",
+            "/contest1/uav2_static/goal_marker",
             Marker,
             queue_size=1,
             latch=True
@@ -621,37 +621,37 @@ class DemoFrameGuardV2:
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/enabled",
+            "/contest1/arena/safe/enabled",
             True
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/x_min",
+            "/contest1/arena/safe/x_min",
             ax0
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/x_max",
+            "/contest1/arena/safe/x_max",
             ax1
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/y_min",
+            "/contest1/arena/safe/y_min",
             ay0
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/y_max",
+            "/contest1/arena/safe/y_max",
             ay1
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/z_min",
+            "/contest1/arena/safe/z_min",
             az0
         )
 
         rospy.set_param(
-            "/contest2/arena/safe/z_max",
+            "/contest1/arena/safe/z_max",
             az1
         )
 

@@ -2,25 +2,25 @@
 # Terminal 3: single-level mission launcher. CH7 + physical ARM are unchanged.
 set -eo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$HOME/contest2_uav"
+ROOT="$HOME/contest1_uav"
 source "$ROOT/runtime/env.sh"
 export DEMO10_QR_AFTER_WAYPOINT=1
-export ROS_MASTER_URI=http://192.168.8.102:11311
-export ROS_IP=192.168.8.102
-export ROS_NAMESPACE=/contest2
+export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_IP=192.168.8.101
+export ROS_NAMESPACE=/contest1
 python3 -B "$D/demo5_config.py" --check "$D/demo5_waypoints.yaml"
 LOGDIR="$ROOT/data/logs/demo10_compact/mission_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$LOGDIR"
-if rosnode list 2>/dev/null | grep -Eq '^/contest2/(uav2_demo5_waypoints|contest2_demo_frame_guard_v2)$'; then
+if rosnode list 2>/dev/null | grep -Eq '^/contest1/(uav2_demo5_waypoints|contest2_demo_frame_guard_v2)$'; then
   echo '[ERROR] previous mission/frame guard is still running'; exit 1
 fi
-if ! rosnode list 2>/dev/null | grep -Fxq /contest2/ego_trajectory_bridge; then
+if ! rosnode list 2>/dev/null | grep -Fxq /contest1/ego_trajectory_bridge; then
   echo '[ERROR] backend not ready; start Terminal 2 first'; exit 1
 fi
 PIDS=()
 armed_now() {
   local data
-  data="$(timeout 3 rostopic echo -n 1 /contest2/mavros/state 2>/dev/null || true)"
+  data="$(timeout 3 rostopic echo -n 1 /contest1/mavros/state 2>/dev/null || true)"
   [[ "$(printf '%s\n' "$data" | awk '/^armed:/ {print $2; exit}')" == 'True' ]]
 }
 cleanup() {
@@ -41,7 +41,7 @@ PYTHONUNBUFFERED=1 python3 -u "$D/uav2_demo_frame_guard_v2.py" >"$LOGDIR/frame.l
 ready=0
 for ((n=0; n<45; n++)); do
   if ! kill -0 "${PIDS[0]}" 2>/dev/null; then break; fi
-  state="$(timeout 2 rostopic echo -n 1 /contest2/yaw_tangent_demo/session_ready 2>/dev/null | awk '/data:/ {print $2; exit}' || true)"
+  state="$(timeout 2 rostopic echo -n 1 /contest1/yaw_tangent_demo/session_ready 2>/dev/null | awk '/data:/ {print $2; exit}' || true)"
   if [ "$state" = 'True' ] && [ -s "$D/session_frame.yaml" ]; then ready=1; break; fi
   sleep 0.3
 done
@@ -51,22 +51,22 @@ fi
 echo '[MISSION] Frame ready. Inspect numbered waypoints/obstacles before CH7 and ARM.'
 # Optional visualization; failure must not veto the flight setup itself.
 if [ "${SHOW_RVIZ:-1}" = '1' ] && command -v rviz >/dev/null 2>&1; then
-  rviz -d "$D/yaw_tangent_demo.rviz" /tf:=/contest2/tf /tf_static:=/contest2/tf_static \
+  rviz -d "$D/yaw_tangent_demo.rviz" /tf:=/contest1/tf /tf_static:=/contest1/tf_static \
     >"$LOGDIR/rviz.log" 2>&1 & PIDS+=("$!")
 fi
 
 if command -v rosbag >/dev/null 2>&1; then
   mkdir -p "$ROOT/data/bags/demo10_compact"
   rosbag record -O "$ROOT/data/bags/demo10_compact/mission_$(date +%Y%m%d_%H%M%S).bag" \
-    /contest2/mavros/state /contest2/mavros/local_position/odom \
-    /contest2/mavros/setpoint_raw/local /contest2/mavros/rc/in \
-    /contest2/ego_uav_interface/flight_healthy \
-    /contest2/ego_uav_interface/rc_mission_allowed \
-    /contest2/ego_uav_interface/trajectory_mux_status \
-    /contest2/ego_uav_interface/trajectory_interface_status \
-    /contest2/ego_uav_interface/point_traj_status \
-    /contest2/ego_uav_interface/point_traj_result \
-    /contest2/demo5/active_waypoint /contest2/position_cmd \
+    /contest1/mavros/state /contest1/mavros/local_position/odom \
+    /contest1/mavros/setpoint_raw/local /contest1/mavros/rc/in \
+    /contest1/ego_uav_interface/flight_healthy \
+    /contest1/ego_uav_interface/rc_mission_allowed \
+    /contest1/ego_uav_interface/trajectory_mux_status \
+    /contest1/ego_uav_interface/trajectory_interface_status \
+    /contest1/ego_uav_interface/point_traj_status \
+    /contest1/ego_uav_interface/point_traj_result \
+    /contest1/demo5/active_waypoint /contest1/position_cmd \
     >"$LOGDIR/rosbag.log" 2>&1 & PIDS+=("$!")
 fi
 echo '[MISSION] Waiting for CH7 authorization and physical ARM (no software ARM).' 

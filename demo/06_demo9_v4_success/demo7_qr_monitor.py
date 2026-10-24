@@ -18,8 +18,8 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from qr_stability import QrStability
 
-QR_TOPIC = '/contest2/demo7/qr/result'
-STATUS_TOPIC = '/contest2/demo7/qr/status'
+QR_TOPIC = '/contest1/demo7/qr/result'
+STATUS_TOPIC = '/contest1/demo7/qr/status'
 YELLOW = '\033[1;33m'
 RESET = '\033[0m'
 
@@ -41,10 +41,10 @@ class QRMonitor:
         self.result_pub = rospy.Publisher(QR_TOPIC, String, queue_size=1, latch=False)
         self.status_pub = rospy.Publisher(STATUS_TOPIC, String, queue_size=1, latch=False)
         self.image_sub = rospy.Subscriber(
-            '/contest2/camera/color/image_raw', Image, self.on_image,
+            '/contest1/camera/color/image_raw', Image, self.on_image,
             queue_size=1, buff_size=4 * 1024 * 1024)
         self.px4_sub = rospy.Subscriber(
-            '/contest2/mavros/state', State, self.on_state, queue_size=1)
+            '/contest1/mavros/state', State, self.on_state, queue_size=1)
         self.timer = rospy.Timer(rospy.Duration(1.0), self.on_second)
         rospy.loginfo('[DEMO7 QR] observer started; RGB %.1fHz decode, %d-frame stable, 1Hz yellow output; ground_test=%s',
                       self.rate, self.required, self.ground_test)

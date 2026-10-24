@@ -47,10 +47,10 @@
   <node pkg="ego_planner" name="drone_$(arg drone_id)_ego_planner_node" type="ego_planner_node" output="screen">
   
     <remap from="~odom_world" to="$(arg odometry_topic)"/>
-    <remap from="~planning/bspline" to = "/contest2/drone_$(arg drone_id)_planning/bspline"/>
-    <remap from="~planning/data_display" to = "/contest2/drone_$(arg drone_id)_planning/data_display"/>
-    <remap from="~planning/broadcast_bspline_from_planner" to = "/contest2/broadcast_bspline"/>
-    <remap from="~planning/broadcast_bspline_to_planner" to = "/contest2/broadcast_bspline"/>
+    <remap from="~planning/bspline" to = "/contest1/drone_$(arg drone_id)_planning/bspline"/>
+    <remap from="~planning/data_display" to = "/contest1/drone_$(arg drone_id)_planning/data_display"/>
+    <remap from="~planning/broadcast_bspline_from_planner" to = "/contest1/broadcast_bspline"/>
+    <remap from="~planning/broadcast_bspline_to_planner" to = "/contest1/broadcast_bspline"/>
 
     <remap from="~grid_map/odom" to="$(arg odometry_topic)"/>
     <remap from="~grid_map/cloud" to="$(arg cloud_topic)"/>

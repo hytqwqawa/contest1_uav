@@ -12,12 +12,12 @@ class T265NaNGuard:
 
         self.raw_topic = rospy.get_param(
             "~raw_topic",
-            "/contest2/t265/odom/sample"
+            "/contest1/t265/odom/sample"
         )
 
         self.filtered_topic = rospy.get_param(
             "~filtered_topic",
-            "/contest2/t265/odom/filtered"
+            "/contest1/t265/odom/filtered"
         )
 
         self.pass_count = 0

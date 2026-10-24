@@ -13,7 +13,7 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger
 
-BASE = '/contest2/ego_uav_interface/'
+BASE = '/contest1/ego_uav_interface/'
 
 
 class PilotTakeoff:
@@ -22,8 +22,8 @@ class PilotTakeoff:
         self.times = {}
         self.ground_z = None
         topics = (
-            ('state', '/contest2/mavros/state', State),
-            ('odom', '/contest2/mavros/local_position/odom', Odometry),
+            ('state', '/contest1/mavros/state', State),
+            ('odom', '/contest1/mavros/local_position/odom', Odometry),
             ('health', BASE + 'flight_healthy', Bool),
             ('stream', BASE + 'offboard_stream_ready', Bool),
             ('permission', BASE + 'rc_mission_allowed', Bool),
@@ -77,7 +77,7 @@ class PilotTakeoff:
                 if not s.connected or s.armed or s.mode != 'POSCTL' or rc.data:
                     raise RuntimeError('Start Terminal 3 DISARMED, POSCTL, CH7 LOW')
                 self.ground_z = o.pose.pose.position.z
-                rospy.set_param('/contest2/uav2_touchdown/ground_z_reference',
+                rospy.set_param('/contest1/uav2_touchdown/ground_z_reference',
                                 float(self.ground_z))
                 break
             if time.monotonic() > deadline:

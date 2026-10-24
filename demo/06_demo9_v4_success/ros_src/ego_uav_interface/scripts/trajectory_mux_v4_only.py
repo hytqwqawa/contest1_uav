@@ -34,24 +34,24 @@ class TrajectoryMux:
         self._point_last_generation = None
 
         self.pub = rospy.Publisher(
-            '/contest2/ego_uav_interface/trajectory_setpoint',
+            '/contest1/ego_uav_interface/trajectory_setpoint',
             PositionTarget, queue_size=10)
         self.status_pub = rospy.Publisher(
-            '/contest2/ego_uav_interface/trajectory_mux_status',
+            '/contest1/ego_uav_interface/trajectory_mux_status',
             String, queue_size=1, latch=True)
-        rospy.Subscriber('/contest2/ego_uav_interface/point_setpoint',
+        rospy.Subscriber('/contest1/ego_uav_interface/point_setpoint',
                          PositionTarget, self.point_cb, queue_size=20)
-        rospy.Subscriber('/contest2/ego_uav_interface/ego_setpoint',
+        rospy.Subscriber('/contest1/ego_uav_interface/ego_setpoint',
                          PositionTarget, self.ego_cb, queue_size=20)
-        rospy.Subscriber('/contest2/ego_uav_interface/point_traj_status',
+        rospy.Subscriber('/contest1/ego_uav_interface/point_traj_status',
                          String, self.point_status_cb, queue_size=20)
-        rospy.Subscriber('/contest2/ego_uav_interface/trajectory_interface_status',
+        rospy.Subscriber('/contest1/ego_uav_interface/trajectory_interface_status',
                          String, self.interface_cb, queue_size=20)
-        rospy.Subscriber('/contest2/mavros/setpoint_raw/local',
+        rospy.Subscriber('/contest1/mavros/setpoint_raw/local',
                          PositionTarget, self.downstream_cb, queue_size=20)
-        rospy.Service('/contest2/ego_uav_interface/use_point',
+        rospy.Service('/contest1/ego_uav_interface/use_point',
                       Trigger, self.use_point)
-        rospy.Service('/contest2/ego_uav_interface/use_ego',
+        rospy.Service('/contest1/ego_uav_interface/use_ego',
                       Trigger, self.use_ego)
         rospy.Timer(rospy.Duration(0.02), self.timer_cb)
 

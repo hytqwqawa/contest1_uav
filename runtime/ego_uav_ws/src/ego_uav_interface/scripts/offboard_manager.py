@@ -19,27 +19,27 @@ class OffboardManager:
 
         self.state_topic = rospy.get_param(
             "~state_topic",
-            "/contest2/mavros/state"
+            "/contest1/mavros/state"
         )
 
         self.health_topic = rospy.get_param(
             "~health_topic",
-            "/contest2/ego_uav_interface/flight_healthy"
+            "/contest1/ego_uav_interface/flight_healthy"
         )
 
         self.stream_ready_topic = rospy.get_param(
             "~stream_ready_topic",
-            "/contest2/ego_uav_interface/offboard_stream_ready"
+            "/contest1/ego_uav_interface/offboard_stream_ready"
         )
 
         self.rc_offboard_topic = rospy.get_param(
             "~rc_offboard_topic",
-            "/contest2/ego_uav_interface/rc_offboard_allowed"
+            "/contest1/ego_uav_interface/rc_offboard_allowed"
         )
 
         self.set_mode_service = rospy.get_param(
             "~set_mode_service",
-            "/contest2/mavros/set_mode"
+            "/contest1/mavros/set_mode"
         )
 
         self.state_timeout = rospy.get_param(
@@ -156,14 +156,14 @@ class OffboardManager:
         # --------------------------------------------------
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/offboard_manager_status",
+            "/contest1/ego_uav_interface/offboard_manager_status",
             String,
             queue_size=1,
             latch=True
         )
 
         self.offboard_active_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/offboard_active",
+            "/contest1/ego_uav_interface/offboard_active",
             Bool,
             queue_size=1,
             latch=True
@@ -174,19 +174,19 @@ class OffboardManager:
         # --------------------------------------------------
 
         rospy.Service(
-            "/contest2/ego_uav_interface/request_offboard",
+            "/contest1/ego_uav_interface/request_offboard",
             Trigger,
             self.request_offboard_callback
         )
 
         rospy.Service(
-            "/contest2/ego_uav_interface/request_posctl",
+            "/contest1/ego_uav_interface/request_posctl",
             Trigger,
             self.request_posctl_callback
         )
 
         rospy.Service(
-            "/contest2/ego_uav_interface/request_land",
+            "/contest1/ego_uav_interface/request_land",
             Trigger,
             self.request_land_callback
         )

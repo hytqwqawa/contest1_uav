@@ -3,8 +3,8 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
 
-INPUT_TOPIC  = "/contest2/mavros/vision_pose/pose"
-OUTPUT_TOPIC = "/contest2/ego_uav_interface/external_pose_ref"
+INPUT_TOPIC  = "/contest1/mavros/vision_pose/pose"
+OUTPUT_TOPIC = "/contest1/ego_uav_interface/external_pose_ref"
 
 # PX4 EKF2_EV_POS, body FRD
 EV_X =  0.05

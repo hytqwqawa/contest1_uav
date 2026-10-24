@@ -21,7 +21,7 @@
     </include>
 
     <include file="$(find sunray_uav_control)/launch/run_all.launch">
-        <arg name="uav_id" value="2"/>
+        <arg name="uav_id" value="1"/>
         <arg name="uav_name" value="uav"/>
         <arg name="flag_printf" value="false"/>
         <arg name="flash_screen" value="false"/>

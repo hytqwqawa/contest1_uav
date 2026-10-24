@@ -16,22 +16,22 @@ class LandingSanitizer:
 
         self.input_topic = rospy.get_param(
             "~input_topic",
-            "/contest2/t265/odom/filtered"
+            "/contest1/t265/odom/filtered"
         )
 
         self.output_topic = rospy.get_param(
             "~output_topic",
-            "/contest2/t265/odom/landing_safe_dev"
+            "/contest1/t265/odom/landing_safe_dev"
         )
 
         self.range_topic = rospy.get_param(
             "~range_topic",
-            "/contest2/mavros/distance_sensor/hrlv_ez4_pub"
+            "/contest1/mavros/distance_sensor/hrlv_ez4_pub"
         )
 
         self.state_topic = rospy.get_param(
             "~state_topic",
-            "/contest2/mavros/state"
+            "/contest1/mavros/state"
         )
 
         self.lock_range = rospy.get_param(

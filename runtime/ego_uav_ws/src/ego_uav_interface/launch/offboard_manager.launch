@@ -6,16 +6,16 @@
         output="screen">
 
     <param name="state_topic"
-           value="/contest2/mavros/state"/>
+           value="/contest1/mavros/state"/>
 
     <param name="health_topic"
-           value="/contest2/ego_uav_interface/flight_healthy"/>
+           value="/contest1/ego_uav_interface/flight_healthy"/>
 
     <param name="stream_ready_topic"
-           value="/contest2/ego_uav_interface/offboard_stream_ready"/>
+           value="/contest1/ego_uav_interface/offboard_stream_ready"/>
 
     <param name="set_mode_service"
-           value="/contest2/mavros/set_mode"/>
+           value="/contest1/mavros/set_mode"/>
 
     <param name="state_timeout"
            value="2.5"/>

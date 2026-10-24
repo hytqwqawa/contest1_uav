@@ -2,11 +2,11 @@
 # Terminal 2. Camera depth -> EGO planner -> POINT/EGO mux and bridge.
 set -eo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$HOME/contest2_uav"
+ROOT="$HOME/contest1_uav"
 source "$ROOT/runtime/env.sh"
-export ROS_MASTER_URI=http://192.168.8.102:11311
-export ROS_IP=192.168.8.102
-export ROS_NAMESPACE=/contest2
+export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_IP=192.168.8.101
+export ROS_NAMESPACE=/contest1
 export ROS_PACKAGE_PATH="$D/ros_src:${ROS_PACKAGE_PATH:-}"
 rospack profile >/dev/null
 PKG="$(rospack find ego_uav_interface)"
@@ -32,10 +32,10 @@ wait_node() {
   return 1
 }
 timeout 8 rostopic list >/dev/null || { echo '[ERROR] ROS master not available; start Terminal 1'; exit 1; }
-wait_topic /contest2/mavros/local_position/odom 60 || { echo '[ERROR] no PX4 odometry'; exit 1; }
+wait_topic /contest1/mavros/local_position/odom 60 || { echo '[ERROR] no PX4 odometry'; exit 1; }
 # Do not block an entire backend because flight_healthy was momentarily False.
 # Existing flight-critical interfaces and PX4 still enforce their requirements.
-if rosnode list 2>/dev/null | grep -Eq '^/contest2/(point_traj_node|trajectory_mux|ego_trajectory_bridge|drone_0_ego_planner_node|drone_0_traj_server)$'; then
+if rosnode list 2>/dev/null | grep -Eq '^/contest1/(point_traj_node|trajectory_mux|ego_trajectory_bridge|drone_0_ego_planner_node|drone_0_traj_server)$'; then
   echo '[ERROR] duplicate backend detected'; exit 1
 fi
 if rosnode list 2>/dev/null | grep -Eiq 'px4ctrl|px4_ctrl'; then
@@ -43,28 +43,28 @@ if rosnode list 2>/dev/null | grep -Eiq 'px4ctrl|px4_ctrl'; then
 fi
 echo '[BACKEND] D435 depth camera...'
 roslaunch realsense2_camera rs_camera.launch \
-  serial_no:=939722070209 camera:=camera \
+  serial_no:=948522071003 camera:=camera \
   enable_depth:=true enable_color:=true \
   color_width:=640 color_height:=480 color_fps:=30 \
   enable_infra1:=false enable_infra2:=false \
   enable_gyro:=false enable_accel:=false enable_pose:=false \
   depth_width:=640 depth_height:=480 depth_fps:=30 initial_reset:=false \
-  diagnostics_topic:=/contest2/diagnostics \
-  tf_topic:=/contest2/tf tf_static_topic:=/contest2/tf_static \
+  diagnostics_topic:=/contest1/diagnostics \
+  tf_topic:=/contest1/tf tf_static_topic:=/contest1/tf_static \
   >"$LOGDIR/d435.log" 2>&1 & PIDS+=("$!")
-wait_topic /contest2/camera/depth/image_rect_raw 40 || { echo '[ERROR] no depth images'; tail -n 30 "$LOGDIR/d435.log"; exit 1; }
+wait_topic /contest1/camera/depth/image_rect_raw 40 || { echo '[ERROR] no depth images'; tail -n 30 "$LOGDIR/d435.log"; exit 1; }
 echo '[BACKEND] Camera extrinsic...'
 roslaunch "$PKG/launch/camera_extrinsic.launch" >"$LOGDIR/extrinsic.log" 2>&1 & PIDS+=("$!")
-wait_topic /contest2/vins_fusion/extrinsic 12 || { echo '[ERROR] no camera extrinsic'; exit 1; }
+wait_topic /contest1/vins_fusion/extrinsic 12 || { echo '[ERROR] no camera extrinsic'; exit 1; }
 echo '[BACKEND] EGO planner...'
 roslaunch "$PKG/launch/ego_uav2.launch" max_vel:=0.15 >"$LOGDIR/ego.log" 2>&1 & PIDS+=("$!")
-wait_node /contest2/drone_0_ego_planner_node 30 || { echo '[ERROR] EGO planner did not start'; tail -n 40 "$LOGDIR/ego.log"; exit 1; }
-wait_node /contest2/drone_0_traj_server 20 || { echo '[ERROR] traj_server did not start'; exit 1; }
+wait_node /contest1/drone_0_ego_planner_node 30 || { echo '[ERROR] EGO planner did not start'; tail -n 40 "$LOGDIR/ego.log"; exit 1; }
+wait_node /contest1/drone_0_traj_server 20 || { echo '[ERROR] traj_server did not start'; exit 1; }
 echo '[BACKEND] POINT/EGO source mux and bridge...'
 roslaunch "$D/uav2_demo5_multi_waypoint_interface.launch" >"$LOGDIR/interface.log" 2>&1 & PIDS+=("$!")
 for node in point_traj_node trajectory_mux ego_trajectory_bridge; do
-  wait_node "/contest2/$node" 20 || { echo "[ERROR] $node did not start"; tail -n 40 "$LOGDIR/interface.log"; exit 1; }
+  wait_node "/contest1/$node" 20 || { echo "[ERROR] $node did not start"; tail -n 40 "$LOGDIR/interface.log"; exit 1; }
 done
-echo '[BACKEND READY] Start Terminal 3: ~/contest2_uav/demo/06_demo9_v4_success/run_demo10.sh'
+echo '[BACKEND READY] Start Terminal 3: ~/contest1_uav/demo/06_demo9_v4_success/run_demo10.sh'
 echo "[BACKEND] Logs: $LOGDIR"
 wait "${PIDS[${#PIDS[@]}-1]}"

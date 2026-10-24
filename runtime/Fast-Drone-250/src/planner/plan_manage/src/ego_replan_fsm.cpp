@@ -47,10 +47,10 @@ namespace ego_planner
 
     if (planner_manager_->pp_.drone_id >= 1)
     {
-      string sub_topic_name = string("/contest2/drone_") + std::to_string(planner_manager_->pp_.drone_id - 1) + string("_planning/swarm_trajs");
+      string sub_topic_name = string("/contest1/drone_") + std::to_string(planner_manager_->pp_.drone_id - 1) + string("_planning/swarm_trajs");
       swarm_trajs_sub_ = nh.subscribe(sub_topic_name.c_str(), 10, &EGOReplanFSM::swarmTrajsCallback, this, ros::TransportHints().tcpNoDelay());
     }
-    string pub_topic_name = string("/contest2/drone_") + std::to_string(planner_manager_->pp_.drone_id) + string("_planning/swarm_trajs");
+    string pub_topic_name = string("/contest1/drone_") + std::to_string(planner_manager_->pp_.drone_id) + string("_planning/swarm_trajs");
     swarm_trajs_pub_ = nh.advertise<traj_utils::MultiBsplines>(pub_topic_name.c_str(), 10);
 
     broadcast_bspline_pub_ = nh.advertise<traj_utils::Bspline>("planning/broadcast_bspline_from_planner", 10);
@@ -74,20 +74,20 @@ namespace ego_planner
 
     if (target_type_ == TARGET_TYPE::MANUAL_TARGET)
     {
-      waypoint_sub_ = nh.subscribe("/contest2/move_base_simple/goal", 1, &EGOReplanFSM::waypointCallback, this);
+      waypoint_sub_ = nh.subscribe("/contest1/move_base_simple/goal", 1, &EGOReplanFSM::waypointCallback, this);
 
       // MANUAL_PREVIEW_TRIGGER_V3
       // Manual goal first generates a preview trajectory.
       // Execution starts only after /traj_start_trigger.
       trigger_sub_ = nh.subscribe(
-          "/contest2/traj_start_trigger",
+          "/contest1/traj_start_trigger",
           1,
           &EGOReplanFSM::triggerCallback,
           this);
     }
     else if (target_type_ == TARGET_TYPE::PRESET_TARGET)
     {
-      trigger_sub_ = nh.subscribe("/contest2/traj_start_trigger", 1, &EGOReplanFSM::triggerCallback, this);
+      trigger_sub_ = nh.subscribe("/contest1/traj_start_trigger", 1, &EGOReplanFSM::triggerCallback, this);
 
       ROS_INFO("Wait for 1 second.");
       int count = 0;

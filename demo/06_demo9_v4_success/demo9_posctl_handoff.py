@@ -31,23 +31,23 @@ class PosctlHandoff:
         self.got_posctl = False
         self.state_of = None
         inputs = (
-            ('state', '/contest2/mavros/state', State),
-            ('extended', '/contest2/mavros/extended_state', ExtendedState),
-            ('odom', '/contest2/mavros/local_position/odom', Odometry),
-            ('rc', '/contest2/mavros/rc/in', RCIn),
-            ('healthy', '/contest2/ego_uav_interface/flight_healthy', Bool),
-            ('mission', '/contest2/ego_uav_interface/rc_mission_allowed', Bool),
-            ('safe', '/contest2/ego_uav_interface/demo_frame_safe', Bool),
-            ('point', '/contest2/ego_uav_interface/point_traj_status', String),
-            ('mux', '/contest2/ego_uav_interface/trajectory_mux_status', String),
-            ('point_cmd', '/contest2/ego_uav_interface/point_setpoint', PositionTarget),
+            ('state', '/contest1/mavros/state', State),
+            ('extended', '/contest1/mavros/extended_state', ExtendedState),
+            ('odom', '/contest1/mavros/local_position/odom', Odometry),
+            ('rc', '/contest1/mavros/rc/in', RCIn),
+            ('healthy', '/contest1/ego_uav_interface/flight_healthy', Bool),
+            ('mission', '/contest1/ego_uav_interface/rc_mission_allowed', Bool),
+            ('safe', '/contest1/ego_uav_interface/demo_frame_safe', Bool),
+            ('point', '/contest1/ego_uav_interface/point_traj_status', String),
+            ('mux', '/contest1/ego_uav_interface/trajectory_mux_status', String),
+            ('point_cmd', '/contest1/ego_uav_interface/point_setpoint', PositionTarget),
         )
         self.subs = [rospy.Subscriber(topic, cls, self.on_msg,
                      callback_args=key, queue_size=20) for key, topic, cls in inputs]
-        self.events = rospy.Publisher('/contest2/demo9_integrated/mission_event',
+        self.events = rospy.Publisher('/contest1/demo9_integrated/mission_event',
                                       String, queue_size=10, latch=True)
-        self.mode_srv = rospy.ServiceProxy('/contest2/mavros/set_mode', SetMode)
-        self.param_srv = rospy.ServiceProxy('/contest2/mavros/param/get', ParamGet)
+        self.mode_srv = rospy.ServiceProxy('/contest1/mavros/set_mode', SetMode)
+        self.param_srv = rospy.ServiceProxy('/contest1/mavros/param/get', ParamGet)
         session = yaml.safe_load((ROOT / 'session_frame.yaml').read_text())
         self.ground = session['origin_world']
         self.height = float(session['goal_demo']['height'])

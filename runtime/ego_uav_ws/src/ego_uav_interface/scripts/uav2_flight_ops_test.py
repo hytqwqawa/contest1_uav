@@ -49,41 +49,41 @@ class FlightOpsTest:
 
         # TFMini normally reads about 0.04-0.06 m on the floor.
         self.touchdown_range_threshold = rospy.get_param(
-            "/contest2/uav2_touchdown/range_threshold",
+            "/contest1/uav2_touchdown/range_threshold",
             0.08
         )
 
         self.touchdown_range_timeout = rospy.get_param(
-            "/contest2/uav2_touchdown/range_timeout",
+            "/contest1/uav2_touchdown/range_timeout",
             0.30
         )
 
         self.touchdown_stable_time = rospy.get_param(
-            "/contest2/uav2_touchdown/stable_time",
+            "/contest1/uav2_touchdown/stable_time",
             0.10
         )
 
         # Never allow the touchdown gate immediately after takeoff.
         self.touchdown_min_drop = rospy.get_param(
-            "/contest2/uav2_touchdown/min_drop",
+            "/contest1/uav2_touchdown/min_drop",
             0.30
         )
 
         # Actual PX4 local-Z before takeoff.
         self.ground_z_reference = rospy.get_param(
-            "/contest2/uav2_touchdown/ground_z_reference",
+            "/contest1/uav2_touchdown/ground_z_reference",
             1.0e9
         )
 
         # Physical-contact fallback.
         # TFMini alone is never sufficient to disarm.
         self.touchdown_ground_margin = rospy.get_param(
-            "/contest2/uav2_touchdown/ground_margin",
+            "/contest1/uav2_touchdown/ground_margin",
             0.03
         )
 
         self.touchdown_vz_max = rospy.get_param(
-            "/contest2/uav2_touchdown/vz_max",
+            "/contest1/uav2_touchdown/vz_max",
             0.10
         )
 
@@ -92,80 +92,80 @@ class FlightOpsTest:
         # TFMini reads about 0.04-0.06 m when physically landed,
         # so 0.10 m leaves only a few centimeters for AUTO.LAND.
         self.autoland_handoff_range = rospy.get_param(
-            "/contest2/uav2_touchdown/autoland_handoff_range",
+            "/contest1/uav2_touchdown/autoland_handoff_range",
             0.10
         )
 
         self.autoland_timeout = rospy.get_param(
-            "/contest2/uav2_touchdown/autoland_timeout",
+            "/contest1/uav2_touchdown/autoland_timeout",
             6.0
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/state",
+            "/contest1/mavros/state",
             State,
             self.state_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/extended_state",
+            "/contest1/mavros/extended_state",
             ExtendedState,
             self.extended_state_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/distance_sensor/hrlv_ez4_pub",
+            "/contest1/mavros/distance_sensor/hrlv_ez4_pub",
             Range,
             self.range_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/local_position/odom",
+            "/contest1/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/flight_healthy",
+            "/contest1/ego_uav_interface/flight_healthy",
             Bool,
             self.health_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/offboard_stream_ready",
+            "/contest1/ego_uav_interface/offboard_stream_ready",
             Bool,
             self.stream_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/rc_mission_allowed",
+            "/contest1/ego_uav_interface/rc_mission_allowed",
             Bool,
             self.mission_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/point_traj_status",
+            "/contest1/ego_uav_interface/point_traj_status",
             String,
             self.point_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/trajectory_mux_status",
+            "/contest1/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/offboard_manager_status",
+            "/contest1/ego_uav_interface/offboard_manager_status",
             String,
             self.offboard_manager_status_cb,
             queue_size=10
@@ -185,7 +185,7 @@ class FlightOpsTest:
 
         for name in names:
 
-            full = "/contest2/ego_uav_interface/" + name
+            full = "/contest1/ego_uav_interface/" + name
 
             rospy.wait_for_service(
                 full,

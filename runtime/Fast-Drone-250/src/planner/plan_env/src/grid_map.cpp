@@ -101,7 +101,7 @@ void GridMap::initMap(ros::NodeHandle &nh)
 
   depth_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(node_, "grid_map/depth", 50));
   extrinsic_sub_ = node_.subscribe<nav_msgs::Odometry>(
-      "/contest2/vins_fusion/extrinsic", 10, &GridMap::extrinsicCallback, this); //sub
+      "/contest1/vins_fusion/extrinsic", 10, &GridMap::extrinsicCallback, this); //sub
 
   if (mp_.pose_type_ == POSE_STAMPED)
   {

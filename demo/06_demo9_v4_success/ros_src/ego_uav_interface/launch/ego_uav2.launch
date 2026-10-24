@@ -11,10 +11,10 @@
   <arg name="drone_id" default="0"/>
 
   <arg name="odom_topic"
-       default="/contest2/mavros/local_position/odom"/>
+       default="/contest1/mavros/local_position/odom"/>
 
   <arg name="depth_topic"
-       default="/contest2/camera/depth/image_rect_raw"/>
+       default="/contest1/camera/depth/image_rect_raw"/>
 
   <arg name="map_size_x" default="100"/>
   <arg name="map_size_y" default="50"/>
@@ -149,7 +149,7 @@
         output="screen">
 
     <remap from="~planning/bspline"
-           to="/contest2/drone_$(arg drone_id)_planning/bspline"/>
+           to="/contest1/drone_$(arg drone_id)_planning/bspline"/>
 
     <param name="traj_server/time_forward"
            value="1.0"

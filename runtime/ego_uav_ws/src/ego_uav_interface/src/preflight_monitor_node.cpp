@@ -25,22 +25,22 @@ public:
         pnh_.param<std::string>(
             "pose_ready_topic",
             pose_ready_topic_,
-            "/contest2/ego_uav_interface/ready");
+            "/contest1/ego_uav_interface/ready");
 
         pnh_.param<std::string>(
             "state_topic",
             state_topic_,
-            "/contest2/mavros/state");
+            "/contest1/mavros/state");
 
         pnh_.param<std::string>(
             "extended_state_topic",
             extended_state_topic_,
-            "/contest2/mavros/extended_state");
+            "/contest1/mavros/extended_state");
 
         pnh_.param<std::string>(
             "estimator_status_topic",
             estimator_status_topic_,
-            "/contest2/mavros/estimator_status");
+            "/contest1/mavros/estimator_status");
 
         // Different MAVROS topics have very different update rates.
         pnh_.param(
@@ -89,19 +89,19 @@ public:
 
         preflight_ready_pub_ =
             nh_.advertise<std_msgs::Bool>(
-                "/contest2/ego_uav_interface/preflight_ready",
+                "/contest1/ego_uav_interface/preflight_ready",
                 1,
                 true);
 
         flight_healthy_pub_ =
             nh_.advertise<std_msgs::Bool>(
-                "/contest2/ego_uav_interface/flight_healthy",
+                "/contest1/ego_uav_interface/flight_healthy",
                 1,
                 true);
 
         status_text_pub_ =
             nh_.advertise<std_msgs::String>(
-                "/contest2/ego_uav_interface/preflight_status",
+                "/contest1/ego_uav_interface/preflight_status",
                 1,
                 true);
 

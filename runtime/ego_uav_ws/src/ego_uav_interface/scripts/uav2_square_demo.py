@@ -92,7 +92,7 @@ class UAV2SquareDemo:
         )
 
         self.flight_ops = os.path.expanduser(
-            "~/contest2_uav/runtime/"
+            "~/contest1_uav/runtime/"
             "ego_uav_ws/src/ego_uav_interface/scripts/"
             "uav2_flight_ops_test.py"
         )
