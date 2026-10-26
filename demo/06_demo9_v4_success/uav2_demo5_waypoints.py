@@ -44,6 +44,15 @@ class TangentPreview:
             int(n) for n in os.environ.get(
                 'DEMO10_HOVER_AFTER_WAYPOINTS', '').split()
         }
+        # Color-only window: arrival of PN (before FIXED yaw) until the
+        # next EGO preview is validated, immediately before EGO execution.
+        self.color_after_waypoint = int(
+            os.environ.get('DEMO10_COLOR_AFTER_WAYPOINT', '0'))
+        self.color_window_active = False
+        self.color_window_pub = rospy.Publisher(
+            '/contest1/demo7/color/window_active', Bool,
+            queue_size=1, latch=True)
+        self.color_window_pub.publish(Bool(data=False))
 
         self.session_path = (
             self.root
@@ -274,6 +283,17 @@ class TangentPreview:
             "PLAN -> VALIDATE -> MOVE + TANGENT."
         )
 
+
+    def set_color_window(self, active, reason):
+        # Observer-only signal; never changes flight control or arrival checks.
+        active = bool(active)
+        if active == self.color_window_active:
+            return
+        self.color_window_active = active
+        self.color_window_pub.publish(Bool(data=active))
+        rospy.logwarn('[COLOR] %s P%d: %s',
+                      'START' if active else 'STOP',
+                      self.color_after_waypoint, reason)
 
     def odom_cb(self, msg):
         self.odom = msg
@@ -1946,7 +1966,7 @@ class TangentPreview:
         marker.header.stamp = rospy.Time.now()
 
         marker.ns = "ego_replan"
-        marker.id = int(traj_id)
+        marker.id = 0
 
         marker.type = Marker.LINE_STRIP
         marker.action = Marker.ADD
@@ -2205,7 +2225,7 @@ class TangentPreview:
         rospy.set_param(
             "/contest1/ego_uav_interface/terminal_yaw_hold_z",
             float(gz)
-	)
+        )
         self.yaw_target_pub.publish(Float64(data=world_yaw_deg))
         rospy.sleep(0.20)  # target callback precedes FIXED mode entry
         self.yaw_mode_pub.publish(String(data="FIXED"))
@@ -2578,7 +2598,8 @@ class TangentPreview:
             candidate = self.bspline
             if (candidate is not None and
                     int(candidate.traj_id) != last_checked_bspline_id):
-                self.validated_ego_path(candidate)
+                pts = self.validated_ego_path(candidate)
+                self.publish_traj_marker(pts, int(candidate.traj_id))
                 rospy.logwarn(
                     "[DEMO5] In-flight EGO replan %d -> %d: fence OK",
                     last_checked_bspline_id, int(candidate.traj_id)
@@ -2747,6 +2768,11 @@ class TangentPreview:
                     "[DEMO8] WAYPOINT %d/%d TRANSLATION REACHED",
                     self.active_wp_num, self.wp_total
                 )
+                # START exactly on the EGO translation-arrival event; this
+                # includes terminal yaw, optional hover, POINT rejoin and
+                # planning/validation of the next EGO leg.
+                if self.active_wp_num == self.color_after_waypoint:
+                    self.set_color_window(True, 'EGO translation reached')
 
                 # Optional EGO-only endpoint orientation requirement.
                 # Do not restore POINT before FIXED yaw completes, because
@@ -3180,6 +3206,10 @@ class TangentPreview:
             "PREVIEW VALIDATED. "
             "Starting DIRECT TANGENT execution."
         )
+        # STOP immediately before following the new EGO curve (and before
+        # any MUX switch or /traj_start_trigger). QR remains untouched.
+        if index == self.color_after_waypoint + 1 and self.color_window_active:
+            self.set_color_window(False, 'next EGO preview validated; execution imminent')
 
         try:
 
@@ -3273,4 +3303,7 @@ if __name__ == "__main__":
     )
 
     runner = TangentPreview()
-    runner.run()
+    try:
+        runner.run()
+    finally:
+        runner.set_color_window(False, 'mission ended/interrupted')

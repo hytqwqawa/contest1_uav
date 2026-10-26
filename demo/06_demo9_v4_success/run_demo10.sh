@@ -9,9 +9,30 @@ export ROS_IP=192.168.8.101
 export ROS_NAMESPACE=/contest1
 # Optional 1-second hover after arrival + terminal yaw at selected P numbers.
 # Example: HOVER_AFTER_WAYPOINTS=(1 2 3 4); empty = disabled.
-HOVER_AFTER_WAYPOINTS=(3)
+HOVER_AFTER_WAYPOINTS=(2 3)
 export DEMO10_HOVER_AFTER_WAYPOINTS="${HOVER_AFTER_WAYPOINTS[*]}"
+# Color recognition window: 0=disabled, N=after EGO waypoint PN is reached
+# (before terminal yaw), through the next EGO preview just before execution.
+COLOR_AFTER_WAYPOINT=2
+export DEMO10_COLOR_AFTER_WAYPOINT="$COLOR_AFTER_WAYPOINT"
 python3 -B "$D/demo5_config.py" --check "$D/demo5_waypoints.yaml"
+# Validate before ARM: selected waypoint AND its following leg must be EGO.
+python3 -B - "$D" "$COLOR_AFTER_WAYPOINT" <<'PY_COLOR_CHECK'
+import sys
+sys.path.insert(0, sys.argv[1])
+from demo5_config import load_config
+w = load_config(sys.argv[1] + '/demo5_waypoints.yaml')['waypoints']
+try:
+    n = int(sys.argv[2])
+except ValueError:
+    raise SystemExit('[COLOR] waypoint must be an integer (0 disables)')
+if n < 0 or (n and (n >= len(w) or
+                     w[n-1]['mode'] != 'EGO' or w[n]['mode'] != 'EGO')):
+    raise SystemExit('[COLOR] select 1..%d with EGO at PN and P(N+1), or 0 to disable'
+                     % (len(w) - 1))
+print('[COLOR] window after P%d, until next EGO preview' % n if n else
+      '[COLOR] waypoint window disabled')
+PY_COLOR_CHECK
 LOGDIR="$ROOT/data/logs/demo10_compact/mission_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$LOGDIR"
 if rosnode list 2>/dev/null | grep -Eq '^/contest1/(uav2_demo5_waypoints|contest2_demo_frame_guard_v2)$'; then
@@ -52,8 +73,32 @@ if [ "$ready" -ne 1 ]; then
   echo '[ERROR] takeoff frame not established'; tail -n 45 "$LOGDIR/frame.log"; exit 1
 fi
 echo '[MISSION] Frame ready. Inspect numbered waypoints/obstacles before CH7 and ARM.'
-echo '[MISSION] QR observer enabled for the full mission (no flight commands).'
-PYTHONUNBUFFERED=1 python3 -B -u "$D/demo7_qr_monitor.py" & PIDS+=("$!")
+# QR runs as before. Color monitor is prestarted but processes RGB only
+# during the selected waypoint window; no camera-node startup latency in flight.
+# contest1 ground test defaults to enabled (no ARM required).
+if [ "${VISION_GROUND_TEST:-1}" = "1" ]; then
+    rosparam set /contest1/demo7_qr_monitor/ground_test true
+    rosparam set /contest1/demo7_color_monitor/ground_test true
+else
+    rosparam set /contest1/demo7_qr_monitor/ground_test false
+    rosparam set /contest1/demo7_color_monitor/ground_test false
+fi
+
+echo '[VISION] QR monitor started; color monitor armed for waypoint window.'
+
+PYTHONUNBUFFERED=1 python3 -B -u \
+    "$D/demo7_qr_monitor.py" \
+    >"$LOGDIR/qr.log" 2>&1 & PIDS+=("$!")
+
+PYTHONUNBUFFERED=1 python3 -B -u \
+    "$D/demo7_color_monitor.py" \
+    >"$LOGDIR/color.log" 2>&1 & PIDS+=("$!")
+
+# Automatically print COLOR detections to Terminal 3 only during that window.
+# The default standalone vision console remains unchanged (QR + color).
+PYTHONUNBUFFERED=1 python3 -B -u \
+    "$D/demo7_vision_console.py" --color-only-window \
+    2>"$LOGDIR/color_console.err.log" & PIDS+=("$!")
 # Optional visualization; failure must not veto the flight setup itself.
 if [ "${SHOW_RVIZ:-1}" = '1' ] && command -v rviz >/dev/null 2>&1; then
   rviz -d "$D/yaw_tangent_demo.rviz" /tf:=/contest1/tf /tf_static:=/contest1/tf_static \
