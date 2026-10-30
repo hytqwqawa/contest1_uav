@@ -11,4 +11,4 @@ waypoint_margin: 0.2
 
 waypoints:
   - {forward: 2.000, left: 0.000, mode: POINT} 
-  - {forward: 4.000, left: 0.000, mode: POINT} 
+  - {forward: 3.000, left: 0.000, mode: POINT} 
