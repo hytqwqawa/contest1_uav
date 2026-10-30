@@ -57,7 +57,7 @@ echo '[BACKEND] Camera extrinsic...'
 roslaunch "$PKG/launch/camera_extrinsic.launch" >"$LOGDIR/extrinsic.log" 2>&1 & PIDS+=("$!")
 wait_topic /contest1/vins_fusion/extrinsic 12 || { echo '[ERROR] no camera extrinsic'; exit 1; }
 echo '[BACKEND] EGO planner...'
-roslaunch "$PKG/launch/ego_uav2.launch" max_vel:=0.15 >"$LOGDIR/ego.log" 2>&1 & PIDS+=("$!")
+roslaunch "$PKG/launch/ego_uav2.launch" max_vel:=0.25 >"$LOGDIR/ego.log" 2>&1 & PIDS+=("$!")
 wait_node /contest1/drone_0_ego_planner_node 30 || { echo '[ERROR] EGO planner did not start'; tail -n 40 "$LOGDIR/ego.log"; exit 1; }
 wait_node /contest1/drone_0_traj_server 20 || { echo '[ERROR] traj_server did not start'; exit 1; }
 echo '[BACKEND] POINT/EGO source mux and bridge...'
