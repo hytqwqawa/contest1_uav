@@ -1,3 +1,0 @@
-# Demo9 V3 pilot-landing flight candidate. Flight control and PX4 params unchanged.
-hover_seconds: 6.0
-max_xy_displacement_m: 0.35
