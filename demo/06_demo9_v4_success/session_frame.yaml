@@ -6,51 +6,61 @@ demo5_plan_snapshot:
     left_max: 8.0
     height_min: -0.5
     height_max: 1.5
-  flight_height: 0.8
+  flight_height: 0.5
   segment_timeout_s: 90.0
   waypoint_margin: 0.2
   waypoints: &id001
-  - forward: 3.0
-    left: 0.0
-    mode: EGO
-    yaw_deg: 0.0
-  - forward: 4.0
-    left: -1.0
-    mode: EGO
-    yaw_deg: 0.0
-  - forward: 4.5
-    left: -1.5
-    mode: EGO
-    yaw_deg: -90.0
-  - forward: 4.0
-    left: -2.0
-    mode: EGO
-  - forward: 3.0
-    left: -2.0
-    mode: EGO
-    yaw_deg: -180.0
   - forward: 2.0
-    left: -2.0
+    left: -0.75
     mode: EGO
-    yaw_deg: -180.0
-  - forward: 0.0
-    left: -2.0
+    speed: 0.2
+  - forward: 4.0
+    left: -0.75
     mode: EGO
-    yaw_deg: -180.0
+    speed: 0.2
+  - forward: 5.5
+    left: -0.75
+    mode: EGO
+    speed: 0.2
+  - forward: 6.8
+    left: -1.25
+    mode: EGO
+    speed: 0.2
+  - forward: 6.9
+    left: -2.25
+    mode: EGO
+    speed: 0.2
+  - forward: 6.75
+    left: -3.35
+    mode: EGO
+    speed: 0.2
+  - forward: 5.5
+    left: -3.75
+    mode: EGO
+    speed: 0.2
+  - forward: 3.0
+    left: -3.75
+    mode: EGO
+    speed: 0.2
+  - forward: 1.0
+    left: -3.75
+    mode: EGO
+    speed: 0.2
   - forward: 0.0
-    left: 0.0
-    mode: POINT
+    left: -3.0
+    mode: EGO
+    speed: 0.2
 demo5_waypoints: *id001
 origin_world:
-  x: -0.05119170974940061
-  y: 0.0029362035042140634
-  z: -0.048856588266789916
+  x: -0.05470858933404088
+  y: 0.002127004394424148
+  z: -0.028333930810913444
 forward_world:
-  x: 0.9999998347131029
-  y: -0.0005749554475967972
+  x: 0.9999992707387139
+  y: -0.0012076928585069949
 left_world:
-  x: 0.0005749554475967972
-  y: 0.9999998347131029
+  x: 0.0012076928585069949
+  y: 0.9999992707387139
 demo_fence:
   forward_min: -2.0
   forward_max: 8.0
@@ -60,16 +70,16 @@ demo_fence:
   height_max: 1.5
 goal_demo:
   forward: 0.0
-  left: 0.0
-  height: 0.8
+  left: -3.0
+  height: 0.5
 goal_world:
-  x: -0.05119170974940061
-  y: 0.0029362035042140634
-  z: 0.7511434117332101
+  x: -0.05833166790956187
+  y: -2.9978708078217173
+  z: 0.47166606918908655
 ego_compatibility_aabb:
-  x_min: -2.1057910227563807
-  x_max: 8.003406611536198
-  y_min: -8.051662117781385
-  y_max: 8.054084792104232
-  z_min: 0.05114341173321009
-  z_max: 1.45114341173321
+  x_min: -2.1143686736795244
+  x_max: 8.004947119443726
+  y_min: -8.057528704383344
+  y_max: 8.05453655602115
+  z_min: 0.07166606918908656
+  z_max: 1.4716660691890866
