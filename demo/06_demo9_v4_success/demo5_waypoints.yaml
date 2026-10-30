@@ -5,15 +5,11 @@ fence:
   left_max: 8.0
   height_min: -0.5
   height_max: 1.5
-flight_height: 0.8
+flight_height: 0.5
 segment_timeout_s: 90.0
 waypoint_margin: 0.2
 
 waypoints:
-<<<<<<< HEAD
-  - {forward: 2.000, left: 0.000, mode: POINT} 
-  - {forward: 3.000, left: 0.000, mode: POINT} 
-=======
   - {forward: 3.000, left: 0.000, mode: EGO, yaw_deg: 0.0}
   - {forward: 4.000, left: -1.000, mode: EGO, yaw_deg: 0.0} 
   - {forward: 4.500, left: -1.500, mode: EGO, yaw_deg: -90.0}  
@@ -22,4 +18,3 @@ waypoints:
   - {forward: 2.000, left: -2.000, mode: EGO, yaw_deg: -180.0}  
   - {forward: 0.000, left: -2.000, mode: EGO, yaw_deg: -180.0}  
   - {forward: 0.000, left: 0.000, mode: POINT}  
->>>>>>> 103ecd01823882a35c4e67ca4c7969dab46f801a
